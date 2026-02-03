@@ -8,24 +8,99 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: #1e293b; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 550px; max-height: 90vh; overflow-y: auto; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn-login, .botao { background: #38bdf8; color: #0f172a; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        #tela-cadastro, #tela-hub, #tela-financas, #tela-estudos, #tela-assuntos, #tela-detalhes, #tela-admin { display: none; }
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: #0f172a; border-radius: 8px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.8rem; }
-        th { color: #38bdf8; background: #1e293b; }
-        .clickable { color: #38bdf8; cursor: pointer; text-decoration: underline; font-weight: bold; }
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #ffffff;
+            --primary: #38bdf8;
+            --accent: #1e293b;
+        }
+
+        /* Classes de Temas */
+        .tema-esmeralda { --bg: #064e3b; --card: #065f46; --primary: #34d399; }
+        .tema-dracula { --bg: #282a36; --card: #44475a; --primary: #bd93f9; }
+        .tema-oceano { --bg: #0c4a6e; --card: #075985; --primary: #7dd3fc; }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; transition: 0.5s; }
+        .container { background: var(--card); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: var(--bg); color: white; box-sizing: border-box; }
+        .btn-login, .botao { background: var(--primary); color: #0f172a; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         
-        /* Ajuste para o botão de mostrar senha */
+        #tela-cadastro, #tela-hub, #tela-financas, #tela-estudos, #tela-assuntos, #tela-detalhes, #tela-admin { display: none; }
+        
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: var(--bg); border-radius: 8px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.8rem; }
+        th { color: var(--primary); background: var(--card); }
+        
         .senha-container { position: relative; width: 100%; }
         .btn-show { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+        
+        .chart-container { margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; }
+
+        /* ESTILO DA MINI JANELA DE CORES */
+        #picker-flutuante {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        #btn-abrir-cores {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: var(--card);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        #lista-cores {
+            margin-top: 10px;
+            background: var(--card);
+            padding: 10px;
+            border-radius: 12px;
+            display: none;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            flex-direction: column;
+        }
+
+        .ponto-cor {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: 0.2s;
+        }
+
+        .ponto-cor:hover { transform: scale(1.1); border-color: white; }
     </style>
 </head>
-<body>
+<body id="corpo-app">
+
+    <div id="picker-flutuante">
+        <button id="btn-abrir-cores" onclick="toggleMenuCores()">🎨</button>
+        <div id="lista-cores">
+            <div class="ponto-cor" style="background: #0f172a;" onclick="mudarTema('')" title="Padrão"></div>
+            <div class="ponto-cor" style="background: #064e3b;" onclick="mudarTema('tema-esmeralda')" title="Esmeralda"></div>
+            <div class="ponto-cor" style="background: #282a36;" onclick="mudarTema('tema-dracula')" title="Dracula"></div>
+            <div class="ponto-cor" style="background: #0c4a6e;" onclick="mudarTema('tema-oceano')" title="Oceano"></div>
+        </div>
+    </div>
 
     <div id="tela-login" class="container"> 
         <h1>Login Cloud</h1>
@@ -53,15 +128,18 @@
         <h1>Olá, <span id="nome-user-hub"></span>!</h1>
         <button class="botao" onclick="abrirTela('tela-financas')" style="background: #22c55e; color: white;">💰 Finanças</button>
         <button class="botao" onclick="abrirTela('tela-estudos')" style="background: #a855f7; color: white;">📚 Estudos</button>
-        <button id="btn-admin-view" class="botao" onclick="abrirTela('tela-admin')" style="background: #f59e0b; color: white; display: none;">⚙️ Admin</button>
+
+        <button id="btn-admin-view" class="botao" onclick="abrirTela('tela-admin')" style="background: #f59e0b; color: white; display: none; margin-top: 20px;">⚙️ Admin</button>
         <button class="btn-login" style="background: #f87171; color: white; margin-top: 20px;" onclick="logout()">Sair</button>
     </div>
 
     <div id="tela-financas" class="container">
         <h1>💰 Finanças</h1>
+        <div class="chart-container"><canvas id="meuGrafico"></canvas></div>
+        <input type="date" id="fin-data">
         <input type="text" id="fin-local" placeholder="Onde gastou?">
         <input type="number" id="fin-valor" placeholder="Valor">
-        <button class="botao" onclick="adicionarGasto()">Adicionar Gasto</button>
+        <button id="btn-salvar-gasto" class="botao" onclick="adicionarGasto()">Adicionar Gasto</button>
         <table><thead><tr><th>Data</th><th>Local</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="tabela-financas"></tbody></table>
         <h3 id="fin-total">Total: R$ 0,00</h3>
         <button class="btn-login" onclick="abrirTela('tela-hub')">Voltar</button>
@@ -72,7 +150,7 @@
         <input type="text" id="nova-materia" placeholder="Ex: Matemática">
         <button class="botao" onclick="adicionarMateria()">Cadastrar Matéria</button>
         <table><thead><tr><th>Matéria</th><th>Ações</th></tr></thead><tbody id="corpo-materias"></tbody></table>
-        <button class="btn-login" onclick="abrirTela('hub')">Voltar</button>
+        <button class="btn-login" onclick="abrirTela('tela-hub')">Voltar</button>
     </div>
 
     <div id="tela-assuntos" class="container">
@@ -86,7 +164,7 @@
 
     <div id="tela-detalhes" class="container" style="width: 650px;">
         <h2 id="titulo-assunto"></h2>
-        <textarea id="texto-detalhes" style="height: 250px;" oninput="salvarDetalhes()" placeholder="Anotações automáticas..."></textarea>
+        <textarea id="texto-detalhes" style="height: 250px;" oninput="salvarDetalhes()" placeholder="Anotações..."></textarea>
         <button class="btn-login" onclick="abrirTela('tela-assuntos')">Voltar</button>
     </div>
 
@@ -97,6 +175,7 @@
     </div>
 
     <script>
+    // FIREBASE CONFIG
     const firebaseConfig = {
         apiKey: "AIzaSyAgUHntWb0V0l6MoHJVxDMs5sstPSaH-lc",
         authDomain: "sistema-bernardo-1999.firebaseapp.com",
@@ -111,8 +190,32 @@
     const db = firebase.database();
 
     let usuariosDB = {}, estudosDB = {}, financasDB = {};
-    let usuarioLogado = "", matIdx = null, assIdx = null;
+    let usuarioLogado = "", matIdx = null, assIdx = null, editandoGastoIdx = null;
+    let meuGrafico = null;
 
+    // Funções de Interface
+    function toggleMenuCores() {
+        const lista = document.getElementById('lista-cores');
+        lista.style.display = (lista.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function mudarTema(classe) {
+        document.getElementById('corpo-app').className = classe;
+        localStorage.setItem('tema-preferido', classe);
+        document.getElementById('lista-cores').style.display = 'none'; // Fecha ao escolher
+    }
+
+    // Fecha o menu de cores ao clicar fora
+    window.addEventListener('click', (e) => {
+        if (!document.getElementById('picker-flutuante').contains(e.target)) {
+            document.getElementById('lista-cores').style.display = 'none';
+        }
+    });
+
+    // Carregar tema salvo
+    if(localStorage.getItem('tema-preferido')) mudarTema(localStorage.getItem('tema-preferido'));
+
+    // Database Sync
     db.ref('/').on('value', (snap) => {
         const data = snap.val() || {};
         usuariosDB = data.usuarios || { "admin": "123" };
@@ -121,19 +224,19 @@
         if (usuarioLogado) atualizarTudo();
     });
 
-    function toggleSenha(id) {
-        const x = document.getElementById(id);
-        if (x.type === "password") {
-            x.type = "text";
-        } else {
-            x.type = "password";
-        }
-    }
-
     function abrirTela(id) {
         document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
         document.getElementById(id).style.display = 'block';
+        if (id === 'tela-financas') {
+            document.getElementById('fin-data').valueAsDate = new Date();
+            setTimeout(renderizarGrafico, 100);
+        }
         atualizarTudo();
+    }
+
+    function toggleSenha(id) {
+        const x = document.getElementById(id);
+        x.type = x.type === "password" ? "text" : "password";
     }
 
     function fazerLogin() {
@@ -147,45 +250,81 @@
         } else { alert("Login inválido!"); }
     }
 
+    function renderizarGrafico() {
+        const canvas = document.getElementById('meuGrafico');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const gastos = financasDB[usuarioLogado] || [];
+        const resumo = {};
+        gastos.forEach(g => { resumo[g.local] = (resumo[g.local] || 0) + g.valor; });
+
+        if (meuGrafico) meuGrafico.destroy();
+        meuGrafico = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(resumo),
+                datasets: [{
+                    data: Object.values(resumo),
+                    backgroundColor: ['#38bdf8', '#22c55e', '#a855f7', '#f59e0b', '#f87171', '#ec4899'],
+                    borderWidth: 0
+                }]
+            },
+            options: { plugins: { legend: { labels: { color: 'white', font: { size: 10 } } } } }
+        });
+    }
+
+    function adicionarGasto() {
+        const dataInput = document.getElementById('fin-data').value;
+        const local = document.getElementById('fin-local').value;
+        const valor = parseFloat(document.getElementById('fin-valor').value);
+        if (!dataInput || !local || isNaN(valor)) return alert("Preencha tudo!");
+        const dataFormatada = dataInput.split('-').reverse().join('/');
+        if(!financasDB[usuarioLogado]) financasDB[usuarioLogado] = [];
+        if (editandoGastoIdx !== null) {
+            financasDB[usuarioLogado][editandoGastoIdx] = { data: dataFormatada, local, valor };
+            editandoGastoIdx = null;
+            document.getElementById('btn-salvar-gasto').innerText = "Adicionar Gasto";
+        } else {
+            financasDB[usuarioLogado].push({ data: dataFormatada, local, valor });
+        }
+        db.ref('financas/' + usuarioLogado).set(financasDB[usuarioLogado]);
+    }
+
+    function desenharFinancas() {
+        const corpo = document.getElementById('tabela-financas');
+        if (!corpo) return;
+        let soma = 0; corpo.innerHTML = "";
+        (financasDB[usuarioLogado] || []).forEach((g, i) => {
+            soma += g.valor;
+            corpo.innerHTML += `<tr><td>${g.data}</td><td>${g.local}</td><td>R$ ${g.valor.toFixed(2)}</td>
+            <td><button style="background:none; border:none; cursor:pointer;" onclick="editarGasto(${i})">✏️</button>
+            <button style="background:none; border:none; cursor:pointer;" onclick="excluirFin(${i})">🗑️</button></td></tr>`;
+        });
+        document.getElementById('fin-total').innerText = `Total: R$ ${soma.toFixed(2)}`;
+    }
+
+    function editarGasto(i) {
+        const g = financasDB[usuarioLogado][i];
+        document.getElementById('fin-data').value = g.data.split('/').reverse().join('-');
+        document.getElementById('fin-local').value = g.local;
+        document.getElementById('fin-valor').value = g.valor;
+        editandoGastoIdx = i;
+        document.getElementById('btn-salvar-gasto').innerText = "Salvar Alteração";
+    }
+
+    window.excluirFin = (i) => { if(confirm("Excluir?")) { financasDB[usuarioLogado].splice(i, 1); db.ref('financas/' + usuarioLogado).set(financasDB[usuarioLogado]); } };
+    function logout() { location.reload(); }
     function finalizarCadastro() {
         const u = document.getElementById('cad-user').value.toLowerCase().trim();
         const s = document.getElementById('cad-senha').value;
-        if (u && s) {
-            usuariosDB[u] = s;
-            db.ref('usuarios').set(usuariosDB);
-            alert("Cadastro salvo na nuvem!");
-            abrirTela('tela-login');
-        }
+        if (u && s) { usuariosDB[u] = s; db.ref('usuarios').set(usuariosDB); alert("Cadastrado!"); abrirTela('tela-login'); }
     }
-
     function atualizarTudo() {
         desenharFinancas();
         desenharMaterias();
         if (matIdx !== null) desenharAssuntos();
         if (usuarioLogado === 'admin') desenharAdmin();
     }
-
-    function adicionarGasto() {
-        const local = document.getElementById('fin-local').value;
-        const valor = parseFloat(document.getElementById('fin-valor').value);
-        if(!financasDB[usuarioLogado]) financasDB[usuarioLogado] = [];
-        financasDB[usuarioLogado].push({ data: new Date().toLocaleDateString('pt-BR'), local, valor });
-        db.ref('financas/' + usuarioLogado).set(financasDB[usuarioLogado]);
-        document.getElementById('fin-local').value = ""; document.getElementById('fin-valor').value = "";
-    }
-
-    function desenharFinancas() {
-        const corpo = document.getElementById('tabela-financas');
-        let soma = 0; corpo.innerHTML = "";
-        (financasDB[usuarioLogado] || []).forEach((g, i) => {
-            soma += g.valor;
-            corpo.innerHTML += `<tr><td>${g.data}</td><td>${g.local}</td><td>R$ ${g.valor.toFixed(2)}</td>
-            <td><button onclick="excluirFin(${i})">🗑️</button></td></tr>`;
-        });
-        document.getElementById('fin-total').innerText = `Total: R$ ${soma.toFixed(2)}`;
-    }
-    window.excluirFin = (i) => { financasDB[usuarioLogado].splice(i, 1); db.ref('financas/' + usuarioLogado).set(financasDB[usuarioLogado]); };
-
     function adicionarMateria() {
         const nome = document.getElementById('nova-materia').value;
         if (!estudosDB[usuarioLogado]) estudosDB[usuarioLogado] = [];
@@ -193,16 +332,14 @@
         db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]);
         document.getElementById('nova-materia').value = "";
     }
-
     function desenharMaterias() {
-        const corpo = document.getElementById('corpo-materias'); corpo.innerHTML = "";
+        const corpo = document.getElementById('corpo-materias'); if(!corpo) return;
+        corpo.innerHTML = "";
         (estudosDB[usuarioLogado] || []).forEach((m, i) => {
-            corpo.innerHTML += `<tr><td class="clickable" onclick="entrarMateria(${i})">${m.nome}</td><td><button onclick="removerMat(${i})">🗑️</button></td></tr>`;
+            corpo.innerHTML += `<tr><td style="cursor:pointer" onclick="entrarMateria(${i})">${m.nome}</td><td><button onclick="removerMat(${i})">🗑️</button></td></tr>`;
         });
     }
-
     window.entrarMateria = (i) => { matIdx = i; document.getElementById('titulo-materia').innerText = estudosDB[usuarioLogado][i].nome; abrirTela('tela-assuntos'); };
-
     function adicionarAssunto() {
         const nome = document.getElementById('novo-assunto').value;
         const data = document.getElementById('data-assunto').value || "S/D";
@@ -211,36 +348,33 @@
         db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]);
         document.getElementById('novo-assunto').value = "";
     }
-
     function desenharAssuntos() {
-        const corpo = document.getElementById('corpo-assuntos'); corpo.innerHTML = "";
+        const corpo = document.getElementById('corpo-assuntos'); if(!corpo) return;
+        corpo.innerHTML = "";
         (estudosDB[usuarioLogado][matIdx].assuntos || []).forEach((a, i) => {
-            corpo.innerHTML += `<tr><td class="clickable" onclick="entrarAssunto(${i})">${a.nome}</td><td>${a.data}</td><td><button onclick="removerAss(${i})">🗑️</button></td></tr>`;
+            corpo.innerHTML += `<tr><td style="cursor:pointer" onclick="entrarAssunto(${i})">${a.nome}</td><td>${a.data}</td><td><button onclick="removerAss(${i})">🗑️</button></td></tr>`;
         });
     }
-
     window.entrarAssunto = (i) => {
         assIdx = i; const a = estudosDB[usuarioLogado][matIdx].assuntos[i];
         document.getElementById('titulo-assunto').innerText = a.nome;
         document.getElementById('texto-detalhes').value = a.conteudo || "";
         abrirTela('tela-detalhes');
     };
-
     window.salvarDetalhes = () => {
         estudosDB[usuarioLogado][matIdx].assuntos[assIdx].conteudo = document.getElementById('texto-detalhes').value;
         db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]);
     };
-
     function desenharAdmin() {
-        const corpo = document.getElementById('corpo-admin'); corpo.innerHTML = "";
+        const corpo = document.getElementById('corpo-admin'); if(!corpo) return;
+        corpo.innerHTML = "";
         Object.keys(usuariosDB).forEach(u => {
             corpo.innerHTML += `<tr><td>${u}</td><td>${usuariosDB[u]}</td><td><button onclick="mudarS('${u}')">✏️</button></td></tr>`;
         });
     }
     window.mudarS = (u) => { const n = prompt("Nova senha:"); if(n) { usuariosDB[u] = n; db.ref('usuarios').set(usuariosDB); } };
-    function logout() { location.reload(); }
-    function removerMat(i) { if(confirm("Apagar matéria?")) { estudosDB[usuarioLogado].splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); } }
-    function removerAss(i) { if(confirm("Apagar assunto?")) { estudosDB[usuarioLogado][matIdx].assuntos.splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); } }
+    function removerMat(i) { if(confirm("Apagar?")) { estudosDB[usuarioLogado].splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); } }
+    function removerAss(i) { if(confirm("Apagar?")) { estudosDB[usuarioLogado][matIdx].assuntos.splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); } }
     </script>
 </body>
 </html>
