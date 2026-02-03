@@ -19,6 +19,10 @@
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.8rem; }
         th { color: #38bdf8; background: #1e293b; }
         .clickable { color: #38bdf8; cursor: pointer; text-decoration: underline; font-weight: bold; }
+        
+        /* Ajuste para o botão de mostrar senha */
+        .senha-container { position: relative; width: 100%; }
+        .btn-show { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -26,7 +30,10 @@
     <div id="tela-login" class="container"> 
         <h1>Login Cloud</h1>
         <input type="text" id="usuario" placeholder="Usuário">
-        <input type="password" id="senha" placeholder="Senha">
+        <div class="senha-container">
+            <input type="password" id="senha" placeholder="Senha">
+            <button class="btn-show" onclick="toggleSenha('senha')">👁️</button>
+        </div>
         <button class="btn-login" onclick="fazerLogin()">Entrar</button>
         <button class="botao" onclick="abrirTela('tela-cadastro')" style="background: #64748b; color: white;">Cadastre-se</button>
     </div>
@@ -34,7 +41,10 @@
     <div id="tela-cadastro" class="container">
         <h1>Novo Cadastro</h1>
         <input type="text" id="cad-user" placeholder="Usuário">
-        <input type="password" id="cad-senha" placeholder="Senha">
+        <div class="senha-container">
+            <input type="password" id="cad-senha" placeholder="Senha">
+            <button class="btn-show" onclick="toggleSenha('cad-senha')">👁️</button>
+        </div>
         <button class="botao" onclick="finalizarCadastro()">Salvar na Nuvem</button>
         <button class="btn-login" style="background: #64748b; color: white;" onclick="abrirTela('tela-login')">Voltar</button>
     </div>
@@ -62,7 +72,7 @@
         <input type="text" id="nova-materia" placeholder="Ex: Matemática">
         <button class="botao" onclick="adicionarMateria()">Cadastrar Matéria</button>
         <table><thead><tr><th>Matéria</th><th>Ações</th></tr></thead><tbody id="corpo-materias"></tbody></table>
-        <button class="btn-login" onclick="abrirTela('tela-hub')">Voltar</button>
+        <button class="btn-login" onclick="abrirTela('hub')">Voltar</button>
     </div>
 
     <div id="tela-assuntos" class="container">
@@ -87,7 +97,6 @@
     </div>
 
     <script>
-    // 1. CONFIGURAÇÃO DAS SUAS CHAVES (Já preenchido conforme suas imagens)
     const firebaseConfig = {
         apiKey: "AIzaSyAgUHntWb0V0l6MoHJVxDMs5sstPSaH-lc",
         authDomain: "sistema-bernardo-1999.firebaseapp.com",
@@ -98,14 +107,12 @@
         databaseURL: "https://sistema-bernardo-1999-default-rtdb.firebaseio.com/"
     };
 
-    // Inicialização
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let usuariosDB = {}, estudosDB = {}, financasDB = {};
     let usuarioLogado = "", matIdx = null, assIdx = null;
 
-    // 2. SINCRONIZAÇÃO EM TEMPO REAL
     db.ref('/').on('value', (snap) => {
         const data = snap.val() || {};
         usuariosDB = data.usuarios || { "admin": "123" };
@@ -113,6 +120,15 @@
         financasDB = data.financas || {};
         if (usuarioLogado) atualizarTudo();
     });
+
+    function toggleSenha(id) {
+        const x = document.getElementById(id);
+        if (x.type === "password") {
+            x.type = "text";
+        } else {
+            x.type = "password";
+        }
+    }
 
     function abrirTela(id) {
         document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
@@ -149,7 +165,6 @@
         if (usuarioLogado === 'admin') desenharAdmin();
     }
 
-    // FUNÇÕES DE LOGICA (FINANÇAS, ESTUDOS, ETC)
     function adicionarGasto() {
         const local = document.getElementById('fin-local').value;
         const valor = parseFloat(document.getElementById('fin-valor').value);
@@ -194,6 +209,7 @@
         if(!estudosDB[usuarioLogado][matIdx].assuntos) estudosDB[usuarioLogado][matIdx].assuntos = [];
         estudosDB[usuarioLogado][matIdx].assuntos.push({ nome, data, conteudo: "" });
         db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]);
+        document.getElementById('novo-assunto').value = "";
     }
 
     function desenharAssuntos() {
@@ -223,8 +239,8 @@
     }
     window.mudarS = (u) => { const n = prompt("Nova senha:"); if(n) { usuariosDB[u] = n; db.ref('usuarios').set(usuariosDB); } };
     function logout() { location.reload(); }
-    function removerMat(i) { estudosDB[usuarioLogado].splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); }
-    function removerAss(i) { estudosDB[usuarioLogado][matIdx].assuntos.splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); }
+    function removerMat(i) { if(confirm("Apagar matéria?")) { estudosDB[usuarioLogado].splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); } }
+    function removerAss(i) { if(confirm("Apagar assunto?")) { estudosDB[usuarioLogado][matIdx].assuntos.splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); } }
     </script>
 </body>
 </html>
