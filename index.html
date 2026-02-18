@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Bernardo - Cloud Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <title>NEXUS LIFE - Productivity Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
@@ -12,170 +12,176 @@
 
     <style>
         :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #ffffff;
-            --primary: #38bdf8;
-            --accent: #1e293b;
+            --bg-gradient: radial-gradient(at top right, #1e1b4b, #020617);
+            --glass: rgba(15, 23, 42, 0.85);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f1f5f9;
+            --primary: #6366f1;
+            --work: #38bdf8;
+            --personal: #f472b6;
+            --accent: #f43f5e;
         }
 
-        /* Classes de Temas */
-        .tema-esmeralda { --bg: #064e3b; --card: #065f46; --primary: #34d399; }
-        .tema-dracula { --bg: #282a36; --card: #44475a; --primary: #bd93f9; }
-        .tema-oceano { --bg: #0c4a6e; --card: #075985; --primary: #7dd3fc; }
+        * { box-sizing: border-box; }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; transition: 0.5s; }
-        .container { background: var(--card); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: var(--bg); color: white; box-sizing: border-box; }
-        .btn-login, .botao { background: var(--primary); color: #0f172a; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text); 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; padding: 20px;
+            transition: background 0.5s ease;
+        }
+
+        /* Menu Configurações */
+        .config-menu { position: absolute; top: 20px; right: 20px; z-index: 100; display: none; }
+        .config-btn { background: var(--glass); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(10px); }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 50px; background: #0f172a; border: 1px solid var(--border); border-radius: 15px; width: 200px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .dropdown-content button { width: 100%; padding: 12px; border: none; background: none; color: white; text-align: left; cursor: pointer; font-family: inherit; }
+        .dropdown-content button:hover { background: var(--primary); }
+
+        .container { 
+            background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            padding: 40px; border-radius: 35px; border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); 
+            text-align: center; width: 100%; max-width: 450px; max-height: 90vh; 
+            overflow-y: auto; display: none; flex-direction: column; align-items: center; 
+        }
+
+        h1 { font-weight: 800; letter-spacing: -2px; margin-bottom: 25px; font-size: 2rem; width: 100%; }
+        .nexus { color: var(--primary); }
+        .life { color: var(--text); font-weight: 300; }
+
+        .input-group { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
+        input, textarea, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.4); color: white; font-family: inherit; outline: none; transition: 0.3s; }
         
-        #tela-cadastro, #tela-hub, #tela-financas, #tela-estudos, #tela-assuntos, #tela-detalhes, #tela-admin { display: none; }
-        
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: var(--bg); border-radius: 8px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.8rem; }
-        th { color: var(--primary); background: var(--card); }
-        
-        .senha-container { position: relative; width: 100%; }
-        .btn-show { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2rem; }
-        
-        .chart-container { margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; }
+        .botao { background: linear-gradient(135deg, var(--primary), #4338ca); color: white; border: none; width: 100%; padding: 16px; border-radius: 15px; font-weight: 700; cursor: pointer; transition: 0.3s; margin: 5px 0; }
+        .botao:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4); }
+        .btn-sec { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); margin-top: 10px; width: 100%; }
 
-        /* ESTILO DA MINI JANELA DE CORES */
-        #picker-flutuante {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
+        .hub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; width: 100%; }
+        .hub-card { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 22px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
+        .hub-card:hover { border-color: var(--primary); background: rgba(255,255,255,0.08); }
 
-        #btn-abrir-cores {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: none;
-            background: var(--card);
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
-        }
-
-        #lista-cores {
-            margin-top: 10px;
-            background: var(--card);
-            padding: 10px;
-            border-radius: 12px;
-            display: none;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            flex-direction: column;
-        }
-
-        .ponto-cor {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.2);
-            transition: 0.2s;
-        }
-
-        .ponto-cor:hover { transform: scale(1.1); border-color: white; }
+        .item-row { background: rgba(255,255,255,0.02); margin: 8px 0; padding: 15px; border-radius: 18px; border: 1px solid var(--border); width: 100%; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+        .bar-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.6s ease; }
+        .done { text-decoration: line-through; opacity: 0.4; }
     </style>
 </head>
-<body id="corpo-app">
+<body>
 
-    <div id="picker-flutuante">
-        <button id="btn-abrir-cores" onclick="toggleMenuCores()">🎨</button>
-        <div id="lista-cores">
-            <div class="ponto-cor" style="background: #0f172a;" onclick="mudarTema('')" title="Padrão"></div>
-            <div class="ponto-cor" style="background: #064e3b;" onclick="mudarTema('tema-esmeralda')" title="Esmeralda"></div>
-            <div class="ponto-cor" style="background: #282a36;" onclick="mudarTema('tema-dracula')" title="Dracula"></div>
-            <div class="ponto-cor" style="background: #0c4a6e;" onclick="mudarTema('tema-oceano')" title="Oceano"></div>
+    <div class="config-menu" id="menu-config-root">
+        <button class="config-btn" onclick="toggleDropdown()">⚙️</button>
+        <div class="dropdown-content" id="myDropdown">
+            <button onclick="abrirTela('tela-perfil')">👤 Meu Perfil</button>
+            <button onclick="abrirTela('tela-cores')">🎨 Alterar Cor</button>
+            <button onclick="abrirTela('tela-privacidade')">🔒 Privacidade</button>
+            <button onclick="logout()" style="color: var(--accent);">🚪 Sair</button>
         </div>
     </div>
 
-    <div id="tela-login" class="container"> 
-        <h1>Login Cloud</h1>
-        <input type="text" id="usuario" placeholder="Usuário">
-        <div class="senha-container">
+    <div id="tela-login" class="container" style="display: flex;"> 
+        <h1><span class="nexus">NEXUS</span><span class="life">LIFE</span></h1>
+        <div class="input-group">
+            <input type="text" id="usuario" placeholder="Usuário">
             <input type="password" id="senha" placeholder="Senha">
-            <button class="btn-show" onclick="toggleSenha('senha')">👁️</button>
+            <button class="botao" onclick="fazerLogin()">Entrar</button>
+            <button class="botao btn-sec" onclick="abrirTela('tela-cadastro')">Registrar</button>
         </div>
-        <button class="btn-login" onclick="fazerLogin()">Entrar</button>
-        <button class="botao" onclick="abrirTela('tela-cadastro')" style="background: #64748b; color: white;">Cadastre-se</button>
     </div>
 
     <div id="tela-cadastro" class="container">
-        <h1>Novo Cadastro</h1>
-        <input type="text" id="cad-user" placeholder="Usuário">
-        <div class="senha-container">
+        <h1><span class="nexus">Bem Vindo</span> <span class="life">a Nexus</span></h1>
+        <div class="input-group">
+            <input type="text" id="cad-user" placeholder="Usuário">
             <input type="password" id="cad-senha" placeholder="Senha">
-            <button class="btn-show" onclick="toggleSenha('cad-senha')">👁️</button>
+            <button class="botao" onclick="finalizarCadastro()">Cadastrar</button>
+            <button class="botao btn-sec" onclick="abrirTela('tela-login')">Voltar</button>
         </div>
-        <button class="botao" onclick="finalizarCadastro()">Salvar na Nuvem</button>
-        <button class="btn-login" style="background: #64748b; color: white;" onclick="abrirTela('tela-login')">Voltar</button>
     </div>
 
     <div id="tela-hub" class="container">
-        <h1>Olá, <span id="nome-user-hub"></span>!</h1>
-        <button class="botao" onclick="abrirTela('tela-financas')" style="background: #22c55e; color: white;">💰 Finanças</button>
-        <button class="botao" onclick="abrirTela('tela-estudos')" style="background: #a855f7; color: white;">📚 Estudos</button>
-
-        <button id="btn-admin-view" class="botao" onclick="abrirTela('tela-admin')" style="background: #f59e0b; color: white; display: none; margin-top: 20px;">⚙️ Admin</button>
-        <button class="btn-login" style="background: #f87171; color: white; margin-top: 20px;" onclick="logout()">Sair</button>
+        <h1><span class="nexus">NEXUS</span>LIFE</h1>
+        <div style="text-align: left; width: 100%; margin: 10px 0;">
+            <p style="opacity: 0.4; margin:0;">Olá,</p>
+            <h2 id="nome-user-hub" style="margin:0; font-size: 2rem;"></h2>
+        </div>
+        <div class="hub-grid">
+            <div class="hub-card" onclick="irParaRotina('Trabalho')">💼<br><b>Trabalho</b></div>
+            <div class="hub-card" onclick="irParaRotina('Pessoal')">🏠<br><b>Pessoal</b></div>
+            <div class="hub-card" onclick="abrirTela('tela-estudos')">📚<br><b>Estudos</b></div>
+            <div class="hub-card" onclick="abrirTela('tela-financas')">💰<br><b>Finanças</b></div>
+        </div>
     </div>
 
-    <div id="tela-financas" class="container">
-        <h1>💰 Finanças</h1>
-        <div class="chart-container"><canvas id="meuGrafico"></canvas></div>
-        <input type="date" id="fin-data">
-        <input type="text" id="fin-local" placeholder="Onde gastou?">
-        <input type="number" id="fin-valor" placeholder="Valor">
-        <button id="btn-salvar-gasto" class="botao" onclick="adicionarGasto()">Adicionar Gasto</button>
-        <table><thead><tr><th>Data</th><th>Local</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="tabela-financas"></tbody></table>
-        <h3 id="fin-total">Total: R$ 0,00</h3>
-        <button class="btn-login" onclick="abrirTela('tela-hub')">Voltar</button>
+    <div id="tela-perfil" class="container">
+        <h1>Meu Perfil</h1>
+        <div class="input-group">
+            <input type="email" id="p-email" placeholder="E-mail">
+            <input type="tel" id="p-tel" placeholder="Telefone">
+            <input type="date" id="p-nasc">
+            <button class="botao" onclick="salvarPerfil()">Salvar</button>
+            <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
+        </div>
+    </div>
+
+    <div id="tela-rotina" class="container">
+        <h1 id="rotina-nome"></h1>
+        <div class="bar-wrap"><div id="barra-prog" class="bar-fill"></div></div>
+        <div class="input-group">
+            <input type="text" id="nova-tarefa" placeholder="Nova tarefa...">
+            <button class="botao" onclick="addTarefa()">Adicionar</button>
+        </div>
+        <div id="lista-tasks" style="width: 100%;"></div>
+        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
     </div>
 
     <div id="tela-estudos" class="container">
-        <h1>📚 Matérias</h1>
-        <input type="text" id="nova-materia" placeholder="Ex: Matemática">
-        <button class="botao" onclick="adicionarMateria()">Cadastrar Matéria</button>
-        <table><thead><tr><th>Matéria</th><th>Ações</th></tr></thead><tbody id="corpo-materias"></tbody></table>
-        <button class="btn-login" onclick="abrirTela('tela-hub')">Voltar</button>
+        <h1>Estudos</h1>
+        <div class="input-group">
+            <input type="text" id="n-materia" placeholder="Nome da Matéria">
+            <button class="botao" onclick="addMateria()">Criar Matéria</button>
+        </div>
+        <div id="estudos-lista" style="width: 100%;"></div>
+        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
     </div>
 
-    <div id="tela-assuntos" class="container">
-        <h1 id="titulo-materia"></h1>
-        <input type="text" id="novo-assunto" placeholder="Assunto">
-        <input type="date" id="data-assunto">
-        <button class="botao" onclick="adicionarAssunto()">Cadastrar Assunto</button>
-        <table><thead><tr><th>Assunto</th><th>Data</th><th>Ação</th></tr></thead><tbody id="corpo-assuntos"></tbody></table>
-        <button class="btn-login" onclick="abrirTela('tela-estudos')">Voltar</button>
+    <div id="tela-notas" class="container">
+        <h1 id="nota-materia-titulo"></h1>
+        <textarea id="texto-nota" placeholder="Suas anotações..."></textarea>
+        <button class="botao" onclick="addNota()">Salvar Anotação</button>
+        <div id="notas-lista" style="width: 100%; margin-top:20px;"></div>
+        <button class="botao btn-sec" onclick="abrirTela('tela-estudos')">Voltar</button>
     </div>
 
-    <div id="tela-detalhes" class="container" style="width: 650px;">
-        <h2 id="titulo-assunto"></h2>
-        <textarea id="texto-detalhes" style="height: 250px;" oninput="salvarDetalhes()" placeholder="Anotações..."></textarea>
-        <button class="btn-login" onclick="abrirTela('tela-assuntos')">Voltar</button>
+    <div id="tela-financas" class="container">
+        <h1>Finanças</h1>
+        <canvas id="meuGrafico" style="margin-bottom: 20px;"></canvas>
+        <div class="input-group">
+            <input type="text" id="f-local" placeholder="Gasto">
+            <input type="number" id="f-valor" placeholder="R$">
+            <input type="date" id="f-data">
+            <button class="botao" onclick="addGasto()">Salvar</button>
+        </div>
+        <div id="lista-financas" style="width: 100%;"></div>
+        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
     </div>
 
-    <div id="tela-admin" class="container">
-        <h1>Painel Admin</h1>
-        <table><thead><tr><th>Usuário</th><th>Senha</th><th>Ação</th></tr></thead><tbody id="corpo-admin"></tbody></table>
-        <button class="btn-login" onclick="abrirTela('tela-hub')">Voltar</button>
+    <div id="tela-cores" class="container">
+        <h1>Alterar Cor</h1>
+        <input type="color" id="colorPicker" oninput="mudarCorFundo(this.value)" style="height:100px;">
+        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
+    </div>
+
+    <div id="tela-privacidade" class="container">
+        <h1>Privacidade</h1>
+        <p>Dados protegidos no Firebase Nexus.</p>
+        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
     </div>
 
     <script>
-    // FIREBASE CONFIG
     const firebaseConfig = {
         apiKey: "AIzaSyAgUHntWb0V0l6MoHJVxDMs5sstPSaH-lc",
         authDomain: "sistema-bernardo-1999.firebaseapp.com",
@@ -185,196 +191,148 @@
         appId: "1:1071659920638:web:f8843b1886ff698acf49af",
         databaseURL: "https://sistema-bernardo-1999-default-rtdb.firebaseio.com/"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let usuariosDB = {}, estudosDB = {}, financasDB = {};
-    let usuarioLogado = "", matIdx = null, assIdx = null, editandoGastoIdx = null;
-    let meuGrafico = null;
+    let userLogado = "", catAtual = "", materiaAtivaIdx = null, meuGrafico = null;
+    let dados = {};
 
-    // Funções de Interface
-    function toggleMenuCores() {
-        const lista = document.getElementById('lista-cores');
-        lista.style.display = (lista.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    function mudarTema(classe) {
-        document.getElementById('corpo-app').className = classe;
-        localStorage.setItem('tema-preferido', classe);
-        document.getElementById('lista-cores').style.display = 'none'; // Fecha ao escolher
-    }
-
-    // Fecha o menu de cores ao clicar fora
-    window.addEventListener('click', (e) => {
-        if (!document.getElementById('picker-flutuante').contains(e.target)) {
-            document.getElementById('lista-cores').style.display = 'none';
-        }
+    db.ref('/').on('value', snap => {
+        dados = snap.val() || {};
+        if (userLogado) renderAll();
     });
 
-    // Carregar tema salvo
-    if(localStorage.getItem('tema-preferido')) mudarTema(localStorage.getItem('tema-preferido'));
-
-    // Database Sync
-    db.ref('/').on('value', (snap) => {
-        const data = snap.val() || {};
-        usuariosDB = data.usuarios || { "admin": "123" };
-        estudosDB = data.estudos || {};
-        financasDB = data.financas || {};
-        if (usuarioLogado) atualizarTudo();
-    });
+    function toggleDropdown() { document.getElementById("myDropdown").style.display = (document.getElementById("myDropdown").style.display === "block") ? "none" : "block"; }
+    function capitalizar(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
     function abrirTela(id) {
         document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
-        document.getElementById(id).style.display = 'block';
-        if (id === 'tela-financas') {
-            document.getElementById('fin-data').valueAsDate = new Date();
-            setTimeout(renderizarGrafico, 100);
-        }
-        atualizarTudo();
-    }
-
-    function toggleSenha(id) {
-        const x = document.getElementById(id);
-        x.type = x.type === "password" ? "text" : "password";
+        document.getElementById(id).style.display = 'flex';
+        if(id === 'tela-financas') { document.getElementById('f-data').valueAsDate = new Date(); setTimeout(renderChart, 200); }
+        renderAll();
     }
 
     function fazerLogin() {
         const u = document.getElementById('usuario').value.toLowerCase().trim();
         const s = document.getElementById('senha').value;
-        if (usuariosDB[u] === s) {
-            usuarioLogado = u;
-            document.getElementById('nome-user-hub').innerText = u;
-            document.getElementById('btn-admin-view').style.display = (u === 'admin') ? 'block' : 'none';
+        if (dados.usuarios && dados.usuarios[u] === s) {
+            userLogado = u;
+            document.getElementById('nome-user-hub').innerText = capitalizar(u);
+            document.getElementById('menu-config-root').style.display = "block";
             abrirTela('tela-hub');
-        } else { alert("Login inválido!"); }
+        } else { alert("Erro de login"); }
     }
 
-    function renderizarGrafico() {
-        const canvas = document.getElementById('meuGrafico');
-        if(!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const gastos = financasDB[usuarioLogado] || [];
-        const resumo = {};
-        gastos.forEach(g => { resumo[g.local] = (resumo[g.local] || 0) + g.valor; });
-
-        if (meuGrafico) meuGrafico.destroy();
-        meuGrafico = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(resumo),
-                datasets: [{
-                    data: Object.values(resumo),
-                    backgroundColor: ['#38bdf8', '#22c55e', '#a855f7', '#f59e0b', '#f87171', '#ec4899'],
-                    borderWidth: 0
-                }]
-            },
-            options: { plugins: { legend: { labels: { color: 'white', font: { size: 10 } } } } }
-        });
+    // --- ESTUDOS ---
+    function addMateria() {
+        const n = document.getElementById('n-materia').value;
+        if (!n) return;
+        if (!dados.estudos) dados.estudos = {};
+        if (!dados.estudos[userLogado]) dados.estudos[userLogado] = [];
+        dados.estudos[userLogado].push({ nome: n, notas: [] });
+        db.ref('estudos/' + userLogado).set(dados.estudos[userLogado]);
+        document.getElementById('n-materia').value = "";
     }
 
-    function adicionarGasto() {
-        const dataInput = document.getElementById('fin-data').value;
-        const local = document.getElementById('fin-local').value;
-        const valor = parseFloat(document.getElementById('fin-valor').value);
-        if (!dataInput || !local || isNaN(valor)) return alert("Preencha tudo!");
-        const dataFormatada = dataInput.split('-').reverse().join('/');
-        if(!financasDB[usuarioLogado]) financasDB[usuarioLogado] = [];
-        if (editandoGastoIdx !== null) {
-            financasDB[usuarioLogado][editandoGastoIdx] = { data: dataFormatada, local, valor };
-            editandoGastoIdx = null;
-            document.getElementById('btn-salvar-gasto').innerText = "Adicionar Gasto";
-        } else {
-            financasDB[usuarioLogado].push({ data: dataFormatada, local, valor });
+    function verNotas(idx) {
+        materiaAtivaIdx = idx;
+        document.getElementById('nota-materia-titulo').innerText = dados.estudos[userLogado][idx].nome;
+        abrirTela('tela-notas');
+    }
+
+    function addNota() {
+        const txt = document.getElementById('texto-nota').value;
+        if (!txt) return;
+        if (!dados.estudos[userLogado][materiaAtivaIdx].notas) dados.estudos[userLogado][materiaAtivaIdx].notas = [];
+        dados.estudos[userLogado][materiaAtivaIdx].notas.push({ texto: txt, data: new Date().toLocaleString() });
+        db.ref('estudos/' + userLogado).set(dados.estudos[userLogado]);
+        document.getElementById('texto-nota').value = "";
+    }
+
+    // --- FINANÇAS ---
+    function addGasto() {
+        const l = document.getElementById('f-local').value;
+        const v = parseFloat(document.getElementById('f-valor').value);
+        const d = document.getElementById('f-data').value;
+        if (!l || isNaN(v)) return;
+        if (!dados.financas) dados.financas = {};
+        if (!dados.financas[userLogado]) dados.financas[userLogado] = [];
+        dados.financas[userLogado].push({ local: l, valor: v, data: d });
+        db.ref('financas/' + userLogado).set(dados.financas[userLogado]);
+        document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = "";
+    }
+
+    // --- RENDERIZAÇÃO ---
+    function renderAll() {
+        if (!userLogado) return;
+
+        // Render Rotina
+        if (document.getElementById('tela-rotina').style.display === 'flex') {
+            const lista = document.getElementById('lista-tasks'); lista.innerHTML = "";
+            let done = 0, total = 0;
+            const tasks = dados.rotina ? (dados.rotina[userLogado] || []) : [];
+            tasks.forEach((t, i) => {
+                if (t.cat !== catAtual) return;
+                total++; if (t.done) done++;
+                lista.innerHTML += `<div class="item-row"><input type="checkbox" ${t.done?'checked':''} onclick="checkTask(${i})"><span class="${t.done?'done':''}">${t.desc}</span><button onclick="delTask(${i})">✕</button></div>`;
+            });
+            document.getElementById('barra-prog').style.width = (total > 0 ? (done/total)*100 : 0) + "%";
         }
-        db.ref('financas/' + usuarioLogado).set(financasDB[usuarioLogado]);
+
+        // Render Estudos
+        if (document.getElementById('tela-estudos').style.display === 'flex') {
+            const el = document.getElementById('estudos-lista'); el.innerHTML = "";
+            (dados.estudos[userLogado] || []).forEach((m, i) => {
+                el.innerHTML += `<div class="item-row" onclick="verNotas(${i})" style="cursor:pointer"><b>${m.nome}</b><span>></span></div>`;
+            });
+        }
+
+        // Render Notas
+        if (document.getElementById('tela-notas').style.display === 'flex') {
+            const el = document.getElementById('notas-lista'); el.innerHTML = "";
+            const materia = dados.estudos[userLogado][materiaAtivaIdx];
+            if (materia && materia.notas) {
+                materia.notas.slice().reverse().forEach(n => {
+                    el.innerHTML += `<div class="item-row" style="flex-direction:column; align-items:flex-start;"><small>${n.data}</small><p>${n.texto}</p></div>`;
+                });
+            }
+        }
+
+        // Render Finanças
+        if (document.getElementById('tela-financas').style.display === 'flex') {
+            const el = document.getElementById('lista-financas'); el.innerHTML = "";
+            (dados.financas[userLogado] || []).forEach((g, i) => {
+                el.innerHTML += `<div class="item-row"><div><b>${g.local}</b><br><small>${g.data}</small></div><div>R$ ${g.valor.toFixed(2)}</div></div>`;
+            });
+            renderChart();
+        }
     }
 
-    function desenharFinancas() {
-        const corpo = document.getElementById('tabela-financas');
-        if (!corpo) return;
-        let soma = 0; corpo.innerHTML = "";
-        (financasDB[usuarioLogado] || []).forEach((g, i) => {
-            soma += g.valor;
-            corpo.innerHTML += `<tr><td>${g.data}</td><td>${g.local}</td><td>R$ ${g.valor.toFixed(2)}</td>
-            <td><button style="background:none; border:none; cursor:pointer;" onclick="editarGasto(${i})">✏️</button>
-            <button style="background:none; border:none; cursor:pointer;" onclick="excluirFin(${i})">🗑️</button></td></tr>`;
-        });
-        document.getElementById('fin-total').innerText = `Total: R$ ${soma.toFixed(2)}`;
+    function renderChart() {
+        const canvas = document.getElementById('meuGrafico');
+        if (!canvas) return;
+        const resumo = {};
+        (dados.financas[userLogado] || []).forEach(g => resumo[g.local] = (resumo[g.local] || 0) + g.valor);
+        if (meuGrafico) meuGrafico.destroy();
+        meuGrafico = new Chart(canvas, { type: 'doughnut', data: { labels: Object.keys(resumo), datasets: [{ data: Object.values(resumo), backgroundColor: ['#6366f1', '#38bdf8', '#f472b6', '#fbbf24'], borderWidth: 0 }] }, options: { plugins: { legend: { labels: { color: 'white' } } } } });
     }
 
-    function editarGasto(i) {
-        const g = financasDB[usuarioLogado][i];
-        document.getElementById('fin-data').value = g.data.split('/').reverse().join('-');
-        document.getElementById('fin-local').value = g.local;
-        document.getElementById('fin-valor').value = g.valor;
-        editandoGastoIdx = i;
-        document.getElementById('btn-salvar-gasto').innerText = "Salvar Alteração";
+    function irParaRotina(cat) { catAtual = cat; document.getElementById('rotina-nome').innerText = cat; abrirTela('tela-rotina'); }
+    function checkTask(i) { dados.rotina[userLogado][i].done = !dados.rotina[userLogado][i].done; db.ref('rotina/' + userLogado).set(dados.rotina[userLogado]); }
+    function delTask(i) { dados.rotina[userLogado].splice(i, 1); db.ref('rotina/' + userLogado).set(dados.rotina[userLogado]); }
+    function addTarefa() { 
+        const d = document.getElementById('nova-tarefa').value; if(!d) return;
+        if(!dados.rotina) dados.rotina = {}; if(!dados.rotina[userLogado]) dados.rotina[userLogado] = [];
+        dados.rotina[userLogado].push({desc: d, cat: catAtual, done: false}); db.ref('rotina/' + userLogado).set(dados.rotina[userLogado]);
+        document.getElementById('nova-tarefa').value = "";
     }
-
-    window.excluirFin = (i) => { if(confirm("Excluir?")) { financasDB[usuarioLogado].splice(i, 1); db.ref('financas/' + usuarioLogado).set(financasDB[usuarioLogado]); } };
+    function mudarCorFundo(cor) { document.documentElement.style.setProperty('--primary', cor); document.body.style.background = `radial-gradient(at top right, ${cor}88, #020617)`; }
     function logout() { location.reload(); }
     function finalizarCadastro() {
         const u = document.getElementById('cad-user').value.toLowerCase().trim();
         const s = document.getElementById('cad-senha').value;
-        if (u && s) { usuariosDB[u] = s; db.ref('usuarios').set(usuariosDB); alert("Cadastrado!"); abrirTela('tela-login'); }
+        if(u && s) { db.ref('usuarios/' + u).set(s); alert("Cadastrado!"); abrirTela('tela-login'); }
     }
-    function atualizarTudo() {
-        desenharFinancas();
-        desenharMaterias();
-        if (matIdx !== null) desenharAssuntos();
-        if (usuarioLogado === 'admin') desenharAdmin();
-    }
-    function adicionarMateria() {
-        const nome = document.getElementById('nova-materia').value;
-        if (!estudosDB[usuarioLogado]) estudosDB[usuarioLogado] = [];
-        estudosDB[usuarioLogado].push({ nome, assuntos: [] });
-        db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]);
-        document.getElementById('nova-materia').value = "";
-    }
-    function desenharMaterias() {
-        const corpo = document.getElementById('corpo-materias'); if(!corpo) return;
-        corpo.innerHTML = "";
-        (estudosDB[usuarioLogado] || []).forEach((m, i) => {
-            corpo.innerHTML += `<tr><td style="cursor:pointer" onclick="entrarMateria(${i})">${m.nome}</td><td><button onclick="removerMat(${i})">🗑️</button></td></tr>`;
-        });
-    }
-    window.entrarMateria = (i) => { matIdx = i; document.getElementById('titulo-materia').innerText = estudosDB[usuarioLogado][i].nome; abrirTela('tela-assuntos'); };
-    function adicionarAssunto() {
-        const nome = document.getElementById('novo-assunto').value;
-        const data = document.getElementById('data-assunto').value || "S/D";
-        if(!estudosDB[usuarioLogado][matIdx].assuntos) estudosDB[usuarioLogado][matIdx].assuntos = [];
-        estudosDB[usuarioLogado][matIdx].assuntos.push({ nome, data, conteudo: "" });
-        db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]);
-        document.getElementById('novo-assunto').value = "";
-    }
-    function desenharAssuntos() {
-        const corpo = document.getElementById('corpo-assuntos'); if(!corpo) return;
-        corpo.innerHTML = "";
-        (estudosDB[usuarioLogado][matIdx].assuntos || []).forEach((a, i) => {
-            corpo.innerHTML += `<tr><td style="cursor:pointer" onclick="entrarAssunto(${i})">${a.nome}</td><td>${a.data}</td><td><button onclick="removerAss(${i})">🗑️</button></td></tr>`;
-        });
-    }
-    window.entrarAssunto = (i) => {
-        assIdx = i; const a = estudosDB[usuarioLogado][matIdx].assuntos[i];
-        document.getElementById('titulo-assunto').innerText = a.nome;
-        document.getElementById('texto-detalhes').value = a.conteudo || "";
-        abrirTela('tela-detalhes');
-    };
-    window.salvarDetalhes = () => {
-        estudosDB[usuarioLogado][matIdx].assuntos[assIdx].conteudo = document.getElementById('texto-detalhes').value;
-        db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]);
-    };
-    function desenharAdmin() {
-        const corpo = document.getElementById('corpo-admin'); if(!corpo) return;
-        corpo.innerHTML = "";
-        Object.keys(usuariosDB).forEach(u => {
-            corpo.innerHTML += `<tr><td>${u}</td><td>${usuariosDB[u]}</td><td><button onclick="mudarS('${u}')">✏️</button></td></tr>`;
-        });
-    }
-    window.mudarS = (u) => { const n = prompt("Nova senha:"); if(n) { usuariosDB[u] = n; db.ref('usuarios').set(usuariosDB); } };
-    function removerMat(i) { if(confirm("Apagar?")) { estudosDB[usuarioLogado].splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); } }
-    function removerAss(i) { if(confirm("Apagar?")) { estudosDB[usuarioLogado][matIdx].assuntos.splice(i, 1); db.ref('estudos/' + usuarioLogado).set(estudosDB[usuarioLogado]); } }
     </script>
 </body>
 </html>
