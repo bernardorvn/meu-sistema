@@ -3,336 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS LIFE - Productivity Hub</title>
+    <title>NEXUS FINANCE - Sistema Completo</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --bg-gradient: radial-gradient(at top right, #1e1b4b, #020617);
-            --glass: rgba(15, 23, 42, 0.85);
-            --border: rgba(255, 255, 255, 0.1);
-            --text: #f1f5f9;
+            --bg: #020617;
+            --card-bg: rgba(15, 23, 42, 0.95);
+            --border: rgba(255, 255, 255, 0.08);
             --primary: #6366f1;
-            --work: #38bdf8;
-            --personal: #f472b6;
-            --accent: #f43f5e;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --text: #f1f5f9;
         }
 
-        * { box-sizing: border-box; }
-
+        * { box-sizing: border-box; font-size: 13px; }
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--bg-gradient);
-            background-attachment: fixed;
-            color: var(--text); 
-            display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; margin: 0; padding: 20px;
-            transition: background 0.5s ease;
+            background: var(--bg); color: var(--text); 
+            height: 100vh; margin: 0; overflow: hidden;
         }
 
-        /* Menu Configurações */
-        .config-menu { position: absolute; top: 20px; right: 20px; z-index: 100; display: none; }
-        .config-btn { background: var(--glass); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(10px); }
-        .dropdown-content { display: none; position: absolute; right: 0; top: 50px; background: #0f172a; border: 1px solid var(--border); border-radius: 15px; width: 200px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .dropdown-content button { width: 100%; padding: 12px; border: none; background: none; color: white; text-align: left; cursor: pointer; font-family: inherit; }
-        .dropdown-content button:hover { background: var(--primary); }
-
-        .container { 
-            background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            padding: 40px; border-radius: 35px; border: 1px solid var(--border);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); 
-            text-align: center; width: 100%; max-width: 450px; max-height: 90vh; 
-            overflow-y: auto; display: none; flex-direction: column; align-items: center; 
+        /* Navegação */
+        .nav-tabs {
+            display: flex; justify-content: center; gap: 20px;
+            padding: 15px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border);
         }
+        .tab-btn {
+            background: none; border: none; color: var(--text); opacity: 0.5;
+            cursor: pointer; font-weight: 700; font-size: 14px; transition: 0.3s;
+            padding: 5px 15px; border-radius: 8px;
+        }
+        .tab-btn.active { opacity: 1; color: var(--primary); background: rgba(99, 102, 241, 0.1); }
 
-        h1 { font-weight: 800; letter-spacing: -2px; margin-bottom: 25px; font-size: 2rem; width: 100%; }
-        .nexus { color: var(--primary); }
-        .life { color: var(--text); font-weight: 300; }
+        .view-container { padding: 20px; height: calc(100vh - 65px); overflow-y: auto; }
+        .view { display: none; height: 100%; }
+        .view.active { display: block; }
 
-        .input-group { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
-        input, textarea, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.4); color: white; font-family: inherit; outline: none; transition: 0.3s; }
+        /* Estilos de Cards e UI */
+        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 20px; }
+        .grid-home { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         
-        .botao { background: linear-gradient(135deg, var(--primary), #4338ca); color: white; border: none; width: 100%; padding: 16px; border-radius: 15px; font-weight: 700; cursor: pointer; transition: 0.3s; margin: 5px 0; }
-        .botao:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4); }
-        .btn-sec { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); margin-top: 10px; width: 100%; }
+        .big-stat { text-align: center; padding: 40px; }
+        .big-stat h2 { font-size: 14px; opacity: 0.6; margin-bottom: 10px; }
+        .big-stat p { font-size: 42px; font-weight: 800; margin: 0; }
 
-        .hub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; width: 100%; }
-        .hub-card { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 22px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
-        .hub-card:hover { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+        input, select { 
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); 
+            background: rgba(0,0,0,0.2); color: white; margin-bottom: 10px;
+        }
+        .botao { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
 
-        .item-row { background: rgba(255,255,255,0.02); margin: 8px 0; padding: 15px; border-radius: 18px; border: 1px solid var(--border); width: 100%; display: flex; justify-content: space-between; align-items: center; text-align: left; }
-        .bar-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
-        .bar-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.6s ease; }
-        .done { text-decoration: line-through; opacity: 0.4; }
+        /* Layout Dashboard (Ajustado para enquadrar gráficos) */
+        .dashboard-layout { display: grid; grid-template-columns: 300px 1fr; gap: 15px; height: 100%; }
+        .charts-wrapper { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; max-height: 250px; overflow: hidden; /* Mantém os gráficos no lugar */
+        }
+        .chart-container { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 10px; text-align: center; border: 1px solid var(--border); }
+        canvas { max-height: 150px !important; width: 100% !important; }
+
+        .history-list { margin-top: 15px; overflow-y: auto; max-height: calc(100% - 280px); }
+        .gasto-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 10px 15px; background: rgba(255,255,255,0.03); 
+            border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border);
+        }
+        .btn-action { background: none; border: none; cursor: pointer; font-size: 14px; margin-left: 8px; }
+
+        /* Auth */
+        .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div class="config-menu" id="menu-config-root">
-        <button class="config-btn" onclick="toggleDropdown()">⚙️</button>
-        <div class="dropdown-content" id="myDropdown">
-            <button onclick="abrirTela('tela-perfil')">👤 Meu Perfil</button>
-            <button onclick="abrirTela('tela-cores')">🎨 Alterar Cor</button>
-            <button onclick="abrirTela('tela-privacidade')">🔒 Privacidade</button>
-            <button onclick="logout()" style="color: var(--accent);">🚪 Sair</button>
+    <div id="tela-auth" class="auth-overlay">
+        <div class="card" style="width: 320px;">
+            <h2 style="text-align: center; margin-bottom: 20px;">NEXUS FINANCE</h2>
+            <div id="auth-inputs">
+                <input type="text" id="usuario" placeholder="Usuário">
+                <input type="password" id="senha" placeholder="Senha">
+                <button class="botao" onclick="fazerLogin()">Entrar</button>
+                <p onclick="toggleAuth(true)" style="text-align:center; cursor:pointer; font-size:11px; margin-top:15px; opacity:0.6">Criar conta</p>
+            </div>
+            <div id="reg-inputs" style="display:none">
+                <input type="text" id="cad-user" placeholder="Novo Usuário">
+                <input type="password" id="cad-senha" placeholder="Senha">
+                <button class="botao" style="background:var(--success)" onclick="registrarUsuario()">Cadastrar</button>
+                <p onclick="toggleAuth(false)" style="text-align:center; cursor:pointer; font-size:11px; margin-top:15px; opacity:0.6">Voltar</p>
+            </div>
         </div>
     </div>
 
-    <div id="tela-login" class="container" style="display: flex;"> 
-        <h1><span class="nexus">NEXUS</span><span class="life">LIFE</span></h1>
-        <div class="input-group">
-            <input type="text" id="usuario" placeholder="Usuário">
-            <input type="password" id="senha" placeholder="Senha">
-            <button class="botao" onclick="fazerLogin()">Entrar</button>
-            <button class="botao btn-sec" onclick="abrirTela('tela-cadastro')">Registrar</button>
+    <nav class="nav-tabs" id="nav-app" style="display: none;">
+        <button class="tab-btn active" onclick="switchTab('home')">🏠 Início</button>
+        <button class="tab-btn" onclick="switchTab('cartoes')">💳 Cartões</button>
+        <button class="tab-btn" onclick="switchTab('fixas')">📌 Contas Fixas</button>
+        <button class="tab-btn" onclick="location.reload()" style="color:var(--danger)">Sair</button>
+    </nav>
+
+    <main class="view-container" id="main-app" style="display: none;">
+        
+        <div id="view-home" class="view active">
+            <div class="grid-home">
+                <div class="card big-stat">
+                    <h2>SALDO MENSAL</h2>
+                    <p id="h-saldo-total" style="color: var(--success);">R$ 0,00</p>
+                    <button class="btn-action" onclick="editarSaldoMensal()" style="color:var(--primary); font-size:11px">✎ Editar Saldo</button>
+                </div>
+                <div class="card big-stat">
+                    <h2>SOBRANDO NO MÊS</h2>
+                    <p id="h-sobra">R$ 0,00</p>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 20px;">
+                <h3>Resumo de Gastos Fixos</h3>
+                <p id="resumo-fixas" style="opacity: 0.6;">Você tem R$ 0,00 em contas fixas este mês.</p>
+            </div>
         </div>
-    </div>
 
-    <div id="tela-cadastro" class="container">
-        <h1><span class="nexus">Bem Vindo</span> <span class="life">a Nexus</span></h1>
-        <div class="input-group">
-            <input type="text" id="cad-user" placeholder="Usuário">
-            <input type="password" id="cad-senha" placeholder="Senha">
-            <button class="botao" onclick="finalizarCadastro()">Cadastrar</button>
-            <button class="botao btn-sec" onclick="abrirTela('tela-login')">Voltar</button>
+        <div id="view-cartoes" class="view">
+            <div class="dashboard-layout">
+                <aside class="card">
+                    <h3>Lançar no Cartão</h3>
+                    <input type="text" id="f-local" placeholder="Onde?">
+                    <input type="number" id="f-valor" placeholder="Valor R$">
+                    <input type="date" id="f-data">
+                    <select id="f-cartao-select"></select>
+                    <button class="botao" onclick="addGasto()">Lançar</button>
+                    
+                    <div style="margin-top:20px; border-top: 1px solid var(--border); padding-top:15px">
+                        <input type="text" id="novo-banco" placeholder="Novo Banco">
+                        <button class="botao" style="background:#334155" onclick="addBanco()">+ Adicionar Banco</button>
+                    </div>
+                </aside>
+                
+                <section>
+                    <div class="charts-wrapper" id="container-graficos"></div>
+                    <div class="card history-list" id="lista-financas"></div>
+                </section>
+            </div>
         </div>
-    </div>
 
-    <div id="tela-hub" class="container">
-        <h1><span class="nexus">NEXUS</span>LIFE</h1>
-        <div style="text-align: left; width: 100%; margin: 10px 0;">
-            <p style="opacity: 0.4; margin:0;">Olá,</p>
-            <h2 id="nome-user-hub" style="margin:0; font-size: 2rem;"></h2>
+        <div id="view-fixas" class="view">
+            <div class="grid-home">
+                <div class="card">
+                    <h3>Adicionar Conta Fixa</h3>
+                    <input type="text" id="fixa-nome" placeholder="Ex: Aluguel, Internet">
+                    <input type="number" id="fixa-valor" placeholder="Valor R$">
+                    <button class="botao" style="background:var(--success)" onclick="addContaFixa()">Salvar Conta Fixa</button>
+                </div>
+                <div class="card">
+                    <h3>Minhas Contas Fixas</h3>
+                    <div id="lista-fixas"></div>
+                </div>
+            </div>
         </div>
-        <div class="hub-grid">
-            <div class="hub-card" onclick="irParaRotina('Trabalho')">💼<br><b>Trabalho</b></div>
-            <div class="hub-card" onclick="irParaRotina('Pessoal')">🏠<br><b>Pessoal</b></div>
-            <div class="hub-card" onclick="abrirTela('tela-estudos')">📚<br><b>Estudos</b></div>
-            <div class="hub-card" onclick="abrirTela('tela-financas')">💰<br><b>Finanças</b></div>
-        </div>
-    </div>
 
-    <div id="tela-perfil" class="container">
-        <h1>Meu Perfil</h1>
-        <div class="input-group">
-            <input type="email" id="p-email" placeholder="E-mail">
-            <input type="tel" id="p-tel" placeholder="Telefone">
-            <input type="date" id="p-nasc">
-            <button class="botao" onclick="salvarPerfil()">Salvar</button>
-            <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
-        </div>
-    </div>
-
-    <div id="tela-rotina" class="container">
-        <h1 id="rotina-nome"></h1>
-        <div class="bar-wrap"><div id="barra-prog" class="bar-fill"></div></div>
-        <div class="input-group">
-            <input type="text" id="nova-tarefa" placeholder="Nova tarefa...">
-            <button class="botao" onclick="addTarefa()">Adicionar</button>
-        </div>
-        <div id="lista-tasks" style="width: 100%;"></div>
-        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
-    </div>
-
-    <div id="tela-estudos" class="container">
-        <h1>Estudos</h1>
-        <div class="input-group">
-            <input type="text" id="n-materia" placeholder="Nome da Matéria">
-            <button class="botao" onclick="addMateria()">Criar Matéria</button>
-        </div>
-        <div id="estudos-lista" style="width: 100%;"></div>
-        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
-    </div>
-
-    <div id="tela-notas" class="container">
-        <h1 id="nota-materia-titulo"></h1>
-        <textarea id="texto-nota" placeholder="Suas anotações..."></textarea>
-        <button class="botao" onclick="addNota()">Salvar Anotação</button>
-        <div id="notas-lista" style="width: 100%; margin-top:20px;"></div>
-        <button class="botao btn-sec" onclick="abrirTela('tela-estudos')">Voltar</button>
-    </div>
-
-    <div id="tela-financas" class="container">
-        <h1>Finanças</h1>
-        <canvas id="meuGrafico" style="margin-bottom: 20px;"></canvas>
-        <div class="input-group">
-            <input type="text" id="f-local" placeholder="Gasto">
-            <input type="number" id="f-valor" placeholder="R$">
-            <input type="date" id="f-data">
-            <button class="botao" onclick="addGasto()">Salvar</button>
-        </div>
-        <div id="lista-financas" style="width: 100%;"></div>
-        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
-    </div>
-
-    <div id="tela-cores" class="container">
-        <h1>Alterar Cor</h1>
-        <input type="color" id="colorPicker" oninput="mudarCorFundo(this.value)" style="height:100px;">
-        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
-    </div>
-
-    <div id="tela-privacidade" class="container">
-        <h1>Privacidade</h1>
-        <p>Dados protegidos no Firebase Nexus.</p>
-        <button class="botao btn-sec" onclick="abrirTela('tela-hub')">Voltar</button>
-    </div>
+    </main>
 
     <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAgUHntWb0V0l6MoHJVxDMs5sstPSaH-lc",
-        authDomain: "sistema-bernardo-1999.firebaseapp.com",
-        projectId: "sistema-bernardo-1999",
-        storageBucket: "sistema-bernardo-1999.firebasestorage.app",
-        messagingSenderId: "1071659920638",
-        appId: "1:1071659920638:web:f8843b1886ff698acf49af",
-        databaseURL: "https://sistema-bernardo-1999-default-rtdb.firebaseio.com/"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+        // Configuração Firebase (Seu Projeto)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAgUHntWb0V0l6MoHJVxDMs5sstPSaH-lc",
+            authDomain: "sistema-bernardo-1999.firebaseapp.com",
+            projectId: "sistema-bernardo-1999",
+            storageBucket: "sistema-bernardo-1999.firebasestorage.app",
+            messagingSenderId: "1071659920638",
+            appId: "1:1071659920638:web:f8843b1886ff698acf49af",
+            databaseURL: "https://sistema-bernardo-1999-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    let userLogado = "", catAtual = "", materiaAtivaIdx = null, meuGrafico = null;
-    let dados = {};
+        let userLogado = "", dados = {}, charts = {};
 
-    db.ref('/').on('value', snap => {
-        dados = snap.val() || {};
-        if (userLogado) renderAll();
-    });
+        // Sincronização
+        db.ref('/').on('value', snap => {
+            dados = snap.val() || {};
+            if (userLogado) renderTudo();
+        });
 
-    function toggleDropdown() { document.getElementById("myDropdown").style.display = (document.getElementById("myDropdown").style.display === "block") ? "none" : "block"; }
-    function capitalizar(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
-    function abrirTela(id) {
-        document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
-        document.getElementById(id).style.display = 'flex';
-        if(id === 'tela-financas') { document.getElementById('f-data').valueAsDate = new Date(); setTimeout(renderChart, 200); }
-        renderAll();
-    }
-
-    function fazerLogin() {
-        const u = document.getElementById('usuario').value.toLowerCase().trim();
-        const s = document.getElementById('senha').value;
-        if (dados.usuarios && dados.usuarios[u] === s) {
-            userLogado = u;
-            document.getElementById('nome-user-hub').innerText = capitalizar(u);
-            document.getElementById('menu-config-root').style.display = "block";
-            abrirTela('tela-hub');
-        } else { alert("Erro de login"); }
-    }
-
-    // --- ESTUDOS ---
-    function addMateria() {
-        const n = document.getElementById('n-materia').value;
-        if (!n) return;
-        if (!dados.estudos) dados.estudos = {};
-        if (!dados.estudos[userLogado]) dados.estudos[userLogado] = [];
-        dados.estudos[userLogado].push({ nome: n, notas: [] });
-        db.ref('estudos/' + userLogado).set(dados.estudos[userLogado]);
-        document.getElementById('n-materia').value = "";
-    }
-
-    function verNotas(idx) {
-        materiaAtivaIdx = idx;
-        document.getElementById('nota-materia-titulo').innerText = dados.estudos[userLogado][idx].nome;
-        abrirTela('tela-notas');
-    }
-
-    function addNota() {
-        const txt = document.getElementById('texto-nota').value;
-        if (!txt) return;
-        if (!dados.estudos[userLogado][materiaAtivaIdx].notas) dados.estudos[userLogado][materiaAtivaIdx].notas = [];
-        dados.estudos[userLogado][materiaAtivaIdx].notas.push({ texto: txt, data: new Date().toLocaleString() });
-        db.ref('estudos/' + userLogado).set(dados.estudos[userLogado]);
-        document.getElementById('texto-nota').value = "";
-    }
-
-    // --- FINANÇAS ---
-    function addGasto() {
-        const l = document.getElementById('f-local').value;
-        const v = parseFloat(document.getElementById('f-valor').value);
-        const d = document.getElementById('f-data').value;
-        if (!l || isNaN(v)) return;
-        if (!dados.financas) dados.financas = {};
-        if (!dados.financas[userLogado]) dados.financas[userLogado] = [];
-        dados.financas[userLogado].push({ local: l, valor: v, data: d });
-        db.ref('financas/' + userLogado).set(dados.financas[userLogado]);
-        document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = "";
-    }
-
-    // --- RENDERIZAÇÃO ---
-    function renderAll() {
-        if (!userLogado) return;
-
-        // Render Rotina
-        if (document.getElementById('tela-rotina').style.display === 'flex') {
-            const lista = document.getElementById('lista-tasks'); lista.innerHTML = "";
-            let done = 0, total = 0;
-            const tasks = dados.rotina ? (dados.rotina[userLogado] || []) : [];
-            tasks.forEach((t, i) => {
-                if (t.cat !== catAtual) return;
-                total++; if (t.done) done++;
-                lista.innerHTML += `<div class="item-row"><input type="checkbox" ${t.done?'checked':''} onclick="checkTask(${i})"><span class="${t.done?'done':''}">${t.desc}</span><button onclick="delTask(${i})">✕</button></div>`;
-            });
-            document.getElementById('barra-prog').style.width = (total > 0 ? (done/total)*100 : 0) + "%";
+        function toggleAuth(reg) {
+            document.getElementById('auth-inputs').style.display = reg ? 'none' : 'block';
+            document.getElementById('reg-inputs').style.display = reg ? 'block' : 'none';
         }
 
-        // Render Estudos
-        if (document.getElementById('tela-estudos').style.display === 'flex') {
-            const el = document.getElementById('estudos-lista'); el.innerHTML = "";
-            (dados.estudos[userLogado] || []).forEach((m, i) => {
-                el.innerHTML += `<div class="item-row" onclick="verNotas(${i})" style="cursor:pointer"><b>${m.nome}</b><span>></span></div>`;
-            });
+        function switchTab(tabId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
 
-        // Render Notas
-        if (document.getElementById('tela-notas').style.display === 'flex') {
-            const el = document.getElementById('notas-lista'); el.innerHTML = "";
-            const materia = dados.estudos[userLogado][materiaAtivaIdx];
-            if (materia && materia.notas) {
-                materia.notas.slice().reverse().forEach(n => {
-                    el.innerHTML += `<div class="item-row" style="flex-direction:column; align-items:flex-start;"><small>${n.data}</small><p>${n.texto}</p></div>`;
-                });
+        function fazerLogin() {
+            const u = document.getElementById('usuario').value.toLowerCase().trim();
+            const s = document.getElementById('senha').value;
+            if (dados.usuarios && dados.usuarios[u] && dados.usuarios[u].senha === s) {
+                userLogado = u;
+                document.getElementById('tela-auth').style.display = "none";
+                document.getElementById('nav-app').style.display = "flex";
+                document.getElementById('main-app').style.display = "block";
+                document.getElementById('f-data').valueAsDate = new Date();
+            } else { alert("Login inválido!"); }
+        }
+
+        function registrarUsuario() {
+            const u = document.getElementById('cad-user').value.toLowerCase().trim();
+            const s = document.getElementById('cad-senha').value;
+            if(!u || !s) return;
+            db.ref('usuarios/' + u).set({ senha: s, saldoMensal: 0, cartoes: ['Nubank'], financas: [], fixas: [] });
+            alert("Cadastrado!"); toggleAuth(false);
+        }
+
+        function editarSaldoMensal() {
+            const novo = prompt("Digite o novo saldo mensal:", dados.usuarios[userLogado].saldoMensal);
+            if(novo !== null) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(novo));
+        }
+
+        function addGasto() {
+            const l = document.getElementById('f-local').value;
+            const v = parseFloat(document.getElementById('f-valor').value);
+            const d = document.getElementById('f-data').value;
+            const c = document.getElementById('f-cartao-select').value;
+            if(!l || isNaN(v)) return;
+            let f = dados.usuarios[userLogado].financas || [];
+            f.push({ local: l, valor: v, data: d, cartao: c });
+            db.ref(`usuarios/${userLogado}/financas`).set(f);
+        }
+
+        function addContaFixa() {
+            const n = document.getElementById('fixa-nome').value;
+            const v = parseFloat(document.getElementById('fixa-valor').value);
+            if(!n || isNaN(v)) return;
+            let fx = dados.usuarios[userLogado].fixas || [];
+            fx.push({ nome: n, valor: v });
+            db.ref(`usuarios/${userLogado}/fixas`).set(fx);
+        }
+
+        function editarGasto(idx) {
+            let f = dados.usuarios[userLogado].financas;
+            const novoValor = prompt("Novo valor para " + f[idx].local, f[idx].valor);
+            if(novoValor !== null) {
+                f[idx].valor = parseFloat(novoValor);
+                db.ref(`usuarios/${userLogado}/financas`).set(f);
             }
         }
 
-        // Render Finanças
-        if (document.getElementById('tela-financas').style.display === 'flex') {
-            const el = document.getElementById('lista-financas'); el.innerHTML = "";
-            (dados.financas[userLogado] || []).forEach((g, i) => {
-                el.innerHTML += `<div class="item-row"><div><b>${g.local}</b><br><small>${g.data}</small></div><div>R$ ${g.valor.toFixed(2)}</div></div>`;
+        function renderTudo() {
+            const user = dados.usuarios[userLogado];
+            const saldoM = user.saldoMensal || 0;
+            let totalG = 0, totalF = 0;
+
+            // Cálculos
+            (user.financas || []).forEach(g => totalG += g.valor);
+            (user.fixas || []).forEach(f => totalF += f.valor);
+
+            // Home
+            document.getElementById('h-saldo-total').innerText = `R$ ${saldoM.toFixed(2)}`;
+            const sobra = saldoM - totalG - totalF;
+            const sobraEl = document.getElementById('h-sobra');
+            sobraEl.innerText = `R$ ${sobra.toFixed(2)}`;
+            sobraEl.style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
+            document.getElementById('resumo-fixas').innerText = `Suas contas fixas somam R$ ${totalF.toFixed(2)}.`;
+
+            // Dashboard & Gráficos
+            const containerG = document.getElementById('container-graficos');
+            containerG.innerHTML = "";
+            const bancos = user.cartoes || [];
+            document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
+
+            bancos.forEach(b => {
+                const gastosBanco = (user.financas || []).filter(g => g.cartao === b);
+                if(gastosBanco.length === 0) return;
+
+                const resumo = {};
+                gastosBanco.forEach(g => resumo[g.local] = (resumo[g.local] || 0) + g.valor);
+
+                const div = document.createElement('div');
+                div.className = 'chart-container';
+                div.innerHTML = `<h5>${b}</h5><canvas id="chart-${b}"></canvas>`;
+                containerG.appendChild(div);
+
+                setTimeout(() => {
+                    new Chart(document.getElementById(`chart-${b}`), {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(resumo),
+                            datasets: [{ data: Object.values(resumo), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'], borderWidth: 0 }]
+                        },
+                        options: { plugins: { legend: { display: false } }, cutout: '70%', responsive: true, maintainAspectRatio: false }
+                    });
+                }, 50);
             });
-            renderChart();
+
+            // Histórico com Edição
+            document.getElementById('lista-financas').innerHTML = (user.financas || []).map((g, i) => `
+                <div class="gasto-item">
+                    <span><b>[${g.cartao}]</b> ${g.local}</span>
+                    <div>
+                        <b style="color:var(--primary)">R$ ${g.valor.toFixed(2)}</b>
+                        <button class="btn-action" onclick="editarGasto(${i})">✎</button>
+                        <button class="btn-action" style="color:var(--danger)" onclick="if(confirm('Excluir?')){ let f=user.financas; f.splice(${i},1); db.ref('usuarios/${userLogado}/financas').set(f); }">✕</button>
+                    </div>
+                </div>
+            `).reverse().join('');
+
+            // Lista Fixas
+            document.getElementById('lista-fixas').innerHTML = (user.fixas || []).map((f, i) => `
+                <div class="gasto-item">
+                    <span>${f.nome}</span>
+                    <b style="color:var(--danger)">R$ ${f.valor.toFixed(2)}</b>
+                </div>
+            `).join('');
         }
-    }
-
-    function renderChart() {
-        const canvas = document.getElementById('meuGrafico');
-        if (!canvas) return;
-        const resumo = {};
-        (dados.financas[userLogado] || []).forEach(g => resumo[g.local] = (resumo[g.local] || 0) + g.valor);
-        if (meuGrafico) meuGrafico.destroy();
-        meuGrafico = new Chart(canvas, { type: 'doughnut', data: { labels: Object.keys(resumo), datasets: [{ data: Object.values(resumo), backgroundColor: ['#6366f1', '#38bdf8', '#f472b6', '#fbbf24'], borderWidth: 0 }] }, options: { plugins: { legend: { labels: { color: 'white' } } } } });
-    }
-
-    function irParaRotina(cat) { catAtual = cat; document.getElementById('rotina-nome').innerText = cat; abrirTela('tela-rotina'); }
-    function checkTask(i) { dados.rotina[userLogado][i].done = !dados.rotina[userLogado][i].done; db.ref('rotina/' + userLogado).set(dados.rotina[userLogado]); }
-    function delTask(i) { dados.rotina[userLogado].splice(i, 1); db.ref('rotina/' + userLogado).set(dados.rotina[userLogado]); }
-    function addTarefa() { 
-        const d = document.getElementById('nova-tarefa').value; if(!d) return;
-        if(!dados.rotina) dados.rotina = {}; if(!dados.rotina[userLogado]) dados.rotina[userLogado] = [];
-        dados.rotina[userLogado].push({desc: d, cat: catAtual, done: false}); db.ref('rotina/' + userLogado).set(dados.rotina[userLogado]);
-        document.getElementById('nova-tarefa').value = "";
-    }
-    function mudarCorFundo(cor) { document.documentElement.style.setProperty('--primary', cor); document.body.style.background = `radial-gradient(at top right, ${cor}88, #020617)`; }
-    function logout() { location.reload(); }
-    function finalizarCadastro() {
-        const u = document.getElementById('cad-user').value.toLowerCase().trim();
-        const s = document.getElementById('cad-senha').value;
-        if(u && s) { db.ref('usuarios/' + u).set(s); alert("Cadastrado!"); abrirTela('tela-login'); }
-    }
     </script>
 </body>
 </html>
