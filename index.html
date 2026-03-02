@@ -17,43 +17,81 @@
         }
 
         * { box-sizing: border-box; font-size: 14px; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
 
-        .welcome-box { padding: 10px 5px; margin-bottom: 5px; }
-        .welcome-box h2 { font-size: 20px; font-weight: 500; color: var(--text-sub); }
-        .welcome-box span { color: var(--text-main); font-weight: 800; }
+        /* HEADER */
+        .app-header { 
+            display: none;
+            align-items: center; 
+            padding: 12px 15px; 
+            background: var(--card-bg); 
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-main); margin-right: 15px; }
+        .app-logo { font-weight: 800; color: var(--primary); font-size: 16px; letter-spacing: -0.5px; }
 
-        .nav-tabs { display: flex; gap: 4px; padding: 10px; background: var(--card-bg); border-bottom: 1px solid var(--border); overflow-x: auto; position: sticky; top: 0; z-index: 50; }
-        .tab-btn { background: none; border: none; color: var(--text-sub); cursor: pointer; font-weight: 600; padding: 10px 14px; border-radius: 10px; white-space: nowrap; }
-        .tab-btn.active { color: var(--primary); background: #eef2ff; }
+        /* SIDEBAR OTIMIZADA */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: var(--card-bg); z-index: 200; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.1); padding: 25px 20px;
+            /* Melhora performance mobile */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 150;
+            display: none; backdrop-filter: blur(2px);
+        }
+        .sidebar-overlay.active { display: block; }
 
-        .view-container { padding: 15px; padding-bottom: 30px; max-width: 1200px; margin: 0 auto; }
+        .nav-list { list-style: none; margin-top: 35px; }
+        .nav-item { 
+            padding: 12px 15px; border-radius: 12px; margin-bottom: 5px; 
+            cursor: pointer; font-weight: 600; color: var(--text-sub);
+            display: flex; align-items: center; gap: 15px; transition: 0.2s;
+            font-size: 15px;
+        }
+        .nav-item span.bullet { font-size: 18px; color: var(--border); transition: 0.2s; }
+        
+        .nav-item.active { background: #eef2ff; color: var(--primary); }
+        .nav-item.active span.bullet { color: var(--primary); }
+        
+        /* CONTEÚDO OTIMIZADO */
+        .view-container { 
+            padding: 12px; max-width: 1200px; margin: 0 auto; 
+            transform: translateZ(0); /* Aceleração de hardware */
+        }
         .view { display: none; }
         .view.active { display: block; }
 
-        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 18px; margin-bottom: 12px; }
-        .grid-layout { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        canvas {
+            image-rendering: -webkit-optimize-contrast; /* Melhora nitidez */
+            max-width: 100% !important;
+        }
+
+        .card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); padding: 14px; margin-bottom: 10px; }
+        .grid-layout { display: grid; grid-template-columns: 1fr; gap: 10px; }
         @media (min-width: 900px) { .grid-layout { grid-template-columns: 320px 1fr; } }
         
-        .charts-wrapper { display: flex; flex-wrap: nowrap; gap: 12px; overflow-x: auto; padding-bottom: 10px; }
-        .chart-item { min-width: 280px; background: var(--card-bg); border-radius: 18px; padding: 15px; border: 1px solid var(--border); position: relative; }
-        .canvas-container { height: 180px; position: relative; }
+        .charts-wrapper { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+        .chart-item { min-width: 260px; background: var(--card-bg); border-radius: 14px; padding: 12px; border: 1px solid var(--border); scroll-snap-align: start; }
+        .canvas-container { height: 160px; position: relative; }
 
-        .resumo-pessoas { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; }
-        .pessoa-tag { background: #f1f5f9; padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border); white-space: nowrap; }
+        .resumo-pessoas { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 10px; }
+        .pessoa-tag { background: #f1f5f9; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); white-space: nowrap; font-size: 12px; }
 
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1.5px solid var(--border); margin-bottom: 10px; font-size: 16px; }
-        .botao { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; }
+        input, select { width: 100%; padding: 10px; border-radius: 8px; border: 1.5px solid var(--border); margin-bottom: 8px; font-size: 16px; outline: none; }
+        .botao { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; }
         
-        .gasto-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card-bg); border-radius: 16px; margin-bottom: 8px; border: 1px solid var(--border); }
-        .btn-acao { background: none; border: none; cursor: pointer; font-size: 18px; margin-left: 10px; }
-        .btn-edit { color: var(--primary); }
-        .btn-del { color: var(--danger); }
-        .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .gasto-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--card-bg); border-radius: 12px; margin-bottom: 6px; border: 1px solid var(--border); }
+        .btn-acao { background: none; border: none; cursor: pointer; font-size: 16px; margin-left: 8px; padding: 4px; }
         
-        .parcela-box { background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px dashed var(--border); margin-bottom: 10px; display: none; }
-        .check-parcela { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; font-weight: 600; color: var(--text-sub); }
-        .check-parcela input { width: auto; margin: 0; }
+        .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .parcela-box { background: #f8fafc; padding: 8px; border-radius: 10px; border: 1px dashed var(--border); margin-bottom: 8px; display: none; }
     </style>
 </head>
 <body>
@@ -76,33 +114,56 @@
         </div>
     </div>
 
-    <nav class="nav-tabs" id="nav-app" style="display: none;">
-        <button class="tab-btn active" onclick="switchTab('home')">Início</button>
-        <button class="tab-btn" onclick="switchTab('cartoes')">Cartões</button>
-        <button class="tab-btn" onclick="switchTab('fixas')">Contas Fixas</button>
-        <button class="tab-btn" onclick="switchTab('poupanca')" style="color:var(--savings)">Poupança</button>
-        <button class="tab-btn" onclick="location.reload()" style="color:var(--danger)">Sair</button>
-    </nav>
+    <header class="app-header" id="app-header">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="app-logo">NEXUS FINANCE</div>
+    </header>
+
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="app-logo">NEXUS</div>
+            <button class="menu-btn" onclick="toggleSidebar()">✕</button>
+        </div>
+        
+        <nav class="nav-list">
+            <div class="nav-item active" id="btn-home" onclick="switchTab('home')">
+                <span class="bullet">•</span> Início
+            </div>
+            <div class="nav-item" id="btn-cartoes" onclick="switchTab('cartoes')">
+                <span class="bullet">•</span> Cartões
+            </div>
+            <div class="nav-item" id="btn-fixas" onclick="switchTab('fixas')">
+                <span class="bullet">•</span> Contas Fixas
+            </div>
+            <div class="nav-item" id="btn-poupanca" onclick="switchTab('poupanca')">
+                <span class="bullet">•</span> <span style="color:var(--savings)">Poupança</span>
+            </div>
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border);">
+            <div class="nav-item" onclick="location.reload()" style="color:var(--danger)">
+                <span class="bullet" style="color:var(--danger)">•</span> Sair
+            </div>
+        </nav>
+    </aside>
 
     <main class="view-container" id="main-app" style="display: none;">
-        
         <div id="view-home" class="view active">
-            <div class="welcome-box">
-                <h2 id="msg-boas-vindas">Olá, <span>Visitante</span></h2>
+            <div class="card" style="border:none; background:transparent; padding:5px 0">
+                <h2 id="msg-boas-vindas" style="font-size:18px; color:var(--text-sub)">Olá, <b>...</b></h2>
             </div>
             <div id="alertas-vencimento" class="card" style="display:none; border-left: 5px solid var(--warning); background: #fffbeb;">
-                <strong style="color: #92400e;">⚠️ Contas vencendo em breve:</strong>
-                <ul id="lista-alertas" style="margin-top: 10px; color: #b45309; padding-left: 20px;"></ul>
+                <strong style="color: #92400e; font-size: 12px;">⚠️ Vencendo em breve:</strong>
+                <ul id="lista-alertas" style="margin-top: 5px; color: #b45309; padding-left: 18px; font-size: 13px;"></ul>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
-                <div class="card" style="text-align:center;">
-                    <span style="color: var(--text-sub); font-weight: 700; font-size: 11px;">ORÇAMENTO MENSAL</span>
-                    <p id="h-saldo-total" style="font-size:32px; font-weight:800; margin:10px 0">R$ 0,00</p>
-                    <button class="botao" onclick="editarSaldoMensal()" style="padding: 8px; font-size: 12px; background: #f1f5f9; color: var(--primary);">✎ Editar</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="card" style="text-align:center; padding: 12px;">
+                    <span style="color: var(--text-sub); font-size: 10px; font-weight: 700;">ORÇAMENTO</span>
+                    <p id="h-saldo-total" style="font-size:20px; font-weight:800; margin:5px 0">R$ 0,00</p>
+                    <button class="botao" onclick="editarSaldoMensal()" style="padding: 4px; font-size: 10px; background: #f1f5f9; color: var(--primary); width: auto;">✎ Editar</button>
                 </div>
-                <div class="card" style="text-align:center;">
-                    <span style="color: var(--text-sub); font-weight: 700; font-size: 11px;">DISPONÍVEL (SOBRA)</span>
-                    <p id="h-sobra" style="font-size:32px; font-weight:800; margin:10px 0">R$ 0,00</p>
+                <div class="card" style="text-align:center; padding: 12px;">
+                    <span style="color: var(--text-sub); font-size: 10px; font-weight: 700;">DISPONÍVEL</span>
+                    <p id="h-sobra" style="font-size:20px; font-weight:800; margin:5px 0">R$ 0,00</p>
                 </div>
             </div>
         </div>
@@ -113,21 +174,17 @@
                     <div class="card">
                         <h3 id="titulo-form-gasto">Novo Gasto</h3>
                         <input type="hidden" id="edit-index-gasto" value="-1">
-                        <input type="text" id="f-local" placeholder="Estabelecimento">
+                        <input type="text" id="f-local" placeholder="Onde?">
                         <input type="number" id="f-valor" placeholder="Valor Total">
-                        
-                        <label class="check-parcela">
-                            <input type="checkbox" id="f-is-parcelado" onchange="toggleParcelas()"> Compra Parcelada?
+                        <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; font-weight:600; color:var(--text-sub)">
+                            <input type="checkbox" id="f-is-parcelado" onchange="toggleParcelas()" style="width:auto; margin:0"> Parcelado?
                         </label>
-
                         <div class="parcela-box" id="box-parcelas">
-                            <label style="font-size: 11px; font-weight: 700; color: var(--text-sub);">NÚMERO DE PARCELAS</label>
-                            <input type="number" id="f-parcelas" value="1" min="1">
+                            <input type="number" id="f-parcelas" value="1" min="1" placeholder="Nº de parcelas">
                         </div>
-
-                        <div style="display:flex; gap: 5px;">
-                            <select id="f-cartao-select"></select>
-                            <button class="botao" style="width: 50px; padding: 10px;" onclick="novoBanco()">+</button>
+                        <div style="display:flex; gap: 5px; margin-bottom: 8px;">
+                            <select id="f-cartao-select" style="margin-bottom: 0;"></select>
+                            <button class="botao" style="width: 45px; padding: 0;" onclick="novoBanco()">+</button>
                         </div>
                         <input type="text" id="f-pessoa" placeholder="Quem comprou?">
                         <input type="date" id="f-data">
@@ -150,7 +207,7 @@
                     <input type="text" id="fixa-nome" placeholder="Nome">
                     <input type="number" id="fixa-valor" placeholder="Valor">
                     <input type="date" id="fixa-vencimento">
-                    <button class="botao" onclick="addContaFixa()">Salvar Fixa</button>
+                    <button class="botao" onclick="addContaFixa()" style="background:var(--success)">Salvar Fixa</button>
                 </div></aside>
                 <section id="lista-fixas"></section>
             </div>
@@ -158,14 +215,14 @@
 
         <div id="view-poupanca" class="view">
             <div class="grid-layout">
-                <div class="card" style="text-align:center; border-top: 5px solid var(--savings);">
-                    <span style="color:var(--savings); font-weight:800">RESERVA TOTAL</span>
-                    <p id="p-total" style="font-size:36px; font-weight:800; margin:10px 0">R$ 0,00</p>
-                    <button class="botao" style="background:#f1f5f9; color:var(--danger); padding: 5px; font-size: 11px; width: auto;" onclick="zerarPoupanca()">♻ Zerar Poupança</button>
+                <div class="card" style="text-align:center; border-top: 4px solid var(--savings);">
+                    <span style="color:var(--savings); font-weight:800; font-size: 11px;">RESERVA TOTAL</span>
+                    <p id="p-total" style="font-size:30px; font-weight:800; margin:5px 0">R$ 0,00</p>
+                    <button class="botao" style="background:transparent; color:var(--danger); padding: 0; font-size: 11px;" onclick="zerarPoupanca()">Zerar Histórico</button>
                 </div>
                 <div class="card">
                     <input type="number" id="p-valor" placeholder="Valor">
-                    <div style="display:flex; gap:10px;">
+                    <div style="display:flex; gap:8px;">
                         <button class="botao" style="background:var(--success)" onclick="movimentarPoupanca('entrada')">Guardar</button>
                         <button class="botao" style="background:var(--danger)" onclick="movimentarPoupanca('saida')">Retirar</button>
                     </div>
@@ -189,14 +246,18 @@
         const db = firebase.database();
         let userLogado = "", dados = {};
 
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebar-overlay').classList.toggle('active');
+        }
+
         function toggleAuth(isCad) {
             document.getElementById('box-login').style.display = isCad ? 'none' : 'block';
             document.getElementById('box-cad').style.display = isCad ? 'block' : 'none';
         }
 
         function toggleParcelas() {
-            const display = document.getElementById('f-is-parcelado').checked ? 'block' : 'none';
-            document.getElementById('box-parcelas').style.display = display;
+            document.getElementById('box-parcelas').style.display = document.getElementById('f-is-parcelado').checked ? 'block' : 'none';
         }
 
         function fazerLogin() {
@@ -207,7 +268,7 @@
                 if (dados.usuarios && dados.usuarios[u] && dados.usuarios[u].senha === s) {
                     userLogado = u;
                     document.getElementById('tela-auth').style.display = "none";
-                    document.getElementById('nav-app').style.display = "flex";
+                    document.getElementById('app-header').style.display = "flex";
                     document.getElementById('main-app').style.display = "block";
                     db.ref('/').on('value', s => { dados = s.val(); renderTudo(); });
                 } else { alert("Erro!"); }
@@ -217,23 +278,39 @@
         function registrar() {
             const u = document.getElementById('cad-user').value.toLowerCase().trim();
             const s = document.getElementById('cad-pass').value;
-            if(u && s) db.ref(`usuarios/${u}`).set({ senha: s, saldoMensal: 0, cartoes: ["Nubank", "Santander", "Itau"] }).then(() => toggleAuth(false));
+            if(u && s) db.ref(`usuarios/${u}`).set({ senha: s, saldoMensal: 0, cartoes: ["Nubank"] }).then(() => toggleAuth(false));
         }
 
+        // FUNÇÃO DE TROCA DE ABAS OTIMIZADA PARA EVITAR "EMBAÇADO"
         function switchTab(t) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('view-'+t).classList.add('active');
-            event.currentTarget.classList.add('active');
+            // Fecha o menu primeiro para liberar processamento
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+
+            // Aguarda a animação do menu terminar (150ms) antes de processar os gráficos
+            setTimeout(() => {
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                
+                document.getElementById('view-'+t).classList.add('active');
+                if(document.getElementById('btn-'+t)) document.getElementById('btn-'+t).classList.add('active');
+                
+                // Se for aba de cartões, força re-renderização para garantir nitidez
+                if (t === 'cartoes') renderTudo();
+                
+                window.scrollTo(0,0);
+            }, 150);
         }
 
         function editarSaldoMensal() { 
-            const n = prompt("Novo orçamento:", dados.usuarios[userLogado].saldoMensal); 
+            const n = prompt("Novo orçamento:", (dados.usuarios[userLogado].saldoMensal || 0)); 
             if(n) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(n)); 
         }
 
         function novoBanco() {
-            const b = prompt("Nome do novo banco/cartão:");
+            const b = prompt("Nome do novo banco:");
             if(b) {
                 let bancos = dados.usuarios[userLogado].cartoes || [];
                 bancos.push(b);
@@ -244,27 +321,24 @@
         function addGasto() {
             const idx = parseInt(document.getElementById('edit-index-gasto').value);
             const total = parseFloat(document.getElementById('f-valor').value);
+            if(isNaN(total)) return;
             const isParcelado = document.getElementById('f-is-parcelado').checked;
             const numParc = isParcelado ? (parseInt(document.getElementById('f-parcelas').value) || 1) : 1;
             let list = dados.usuarios[userLogado].financas || [];
-            
             const obj = { 
-                local: document.getElementById('f-local').value, 
+                local: document.getElementById('f-local').value || "Gasto", 
                 valor: total / numParc, 
                 valorTotal: total,
                 parcelas: numParc,
                 pessoa: document.getElementById('f-pessoa').value || "Eu", 
                 cartao: document.getElementById('f-cartao-select').value, 
-                data: document.getElementById('f-data').value 
+                data: document.getElementById('f-data').value || new Date().toISOString().split('T')[0]
             };
-            
             if(idx === -1) list.push(obj); else list[idx] = obj;
             db.ref(`usuarios/${userLogado}/financas`).set(list).then(() => {
-                document.getElementById('edit-index-gasto').value = "-1";
                 document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = ""; 
-                document.getElementById('f-parcelas').value = "1";
-                document.getElementById('f-is-parcelado').checked = false;
-                toggleParcelas();
+                document.getElementById('f-is-parcelado').checked = false; toggleParcelas();
+                document.getElementById('edit-index-gasto').value = "-1";
             });
         }
 
@@ -278,8 +352,8 @@
             };
             if(idx === -1) list.push(obj); else list[idx] = obj;
             db.ref(`usuarios/${userLogado}/fixas`).set(list).then(() => {
-                document.getElementById('edit-index-fixa').value = "-1";
                 document.getElementById('fixa-nome').value = ""; document.getElementById('fixa-valor').value = "";
+                document.getElementById('edit-index-fixa').value = "-1";
             });
         }
 
@@ -301,7 +375,7 @@
             }
         }
 
-        function zerarPoupanca() { if(confirm("Zerar poupança?")) db.ref(`usuarios/${userLogado}/poupanca_extrato`).set([]); }
+        function zerarPoupanca() { if(confirm("Zerar histórico?")) db.ref(`usuarios/${userLogado}/poupanca_extrato`).set([]); }
         function delGasto(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].financas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/financas`).set(f); } }
         function delFixa(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].fixas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/fixas`).set(f); } }
         
@@ -332,7 +406,7 @@
             afterDraw: (chart) => {
                 if (chart.options.plugins.centerText) {
                     const { ctx, chartArea: { top, left, width, height } } = chart;
-                    ctx.save(); ctx.font = 'bold 16px sans-serif'; ctx.fillStyle = '#0f172a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.save(); ctx.font = 'bold 14px sans-serif'; ctx.fillStyle = '#0f172a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText(chart.options.plugins.centerText.text, left + width / 2, top + height / 2); ctx.restore();
                 }
             }
@@ -341,8 +415,7 @@
         function renderTudo() {
             const u = dados.usuarios[userLogado];
             if(!u) return;
-            const nomeFormatado = userLogado.charAt(0).toUpperCase() + userLogado.slice(1);
-            document.getElementById('msg-boas-vindas').innerHTML = `Olá, <span>${nomeFormatado}</span>`;
+            document.getElementById('msg-boas-vindas').innerHTML = `Olá, <b>${userLogado.charAt(0).toUpperCase() + userLogado.slice(1)}</b>`;
 
             let totalG = 0, gastosPorPessoa = {}, alertas = "";
             const hoje = new Date();
@@ -355,7 +428,7 @@
                 totalF += f.valor;
                 const dv = new Date(f.vencimento + "T12:00:00");
                 const diff = (dv - hoje) / (1000 * 60 * 60 * 24);
-                if(diff <= 10 && diff >= -1) alertas += `<li>${f.nome} (Vence ${dv.toLocaleDateString()})</li>`;
+                if(diff <= 10 && diff >= -1) alertas += `<li>${f.nome} (${dv.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})})</li>`;
             });
 
             document.getElementById('h-saldo-total').innerText = `R$ ${(u.saldoMensal || 0).toFixed(2)}`;
@@ -366,7 +439,7 @@
             document.getElementById('lista-alertas').innerHTML = alertas;
 
             const cG = document.getElementById('container-graficos'); cG.innerHTML = "";
-            const bancos = u.cartoes || ['Nubank', 'Santander', 'Itau'];
+            const bancos = u.cartoes || ['Nubank'];
             document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
             
             bancos.forEach(b => {
@@ -375,9 +448,9 @@
                 if(totalB > 0) {
                     const res = {}; gastosB.forEach(g => res[g.local] = (res[g.local] || 0) + g.valor);
                     const div = document.createElement('div'); div.className = 'chart-item';
-                    div.innerHTML = `<h5>${b}</h5><div class="canvas-container"><canvas id="c-${b}"></canvas></div>`;
+                    div.innerHTML = `<h5 style="font-size:12px; margin-bottom:8px">${b}</h5><div class="canvas-container"><canvas id="c-${b.replace(/\s/g, '')}"></canvas></div>`;
                     cG.appendChild(div);
-                    new Chart(document.getElementById(`c-${b}`), { 
+                    new Chart(document.getElementById(`c-${b.replace(/\s/g, '')}`), { 
                         type: 'doughnut', 
                         data: { labels: Object.keys(res), datasets: [{ data: Object.values(res), backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#db2777'], borderWidth: 2 }] }, 
                         options: { plugins: { legend: { display: false }, centerText: { text: `R$ ${totalB.toFixed(0)}` } }, cutout: '75%', maintainAspectRatio: false } 
@@ -391,20 +464,34 @@
 
             document.getElementById('lista-financas').innerHTML = (u.financas || []).map((g, i) => `
                 <div class="gasto-item">
-                    <span><b>${g.local}</b><br><small>${g.cartao} • ${g.pessoa} ${g.parcelas > 1 ? `(${g.parcelas}x)` : ''}</small></span>
-                    <div><b>R$ ${g.valor.toFixed(2)}</b><button class="btn-acao btn-edit" onclick="prepararEdicaoGasto(${i})">✎</button><button class="btn-acao btn-del" onclick="delGasto(${i})">✕</button></div>
+                    <span><b style="font-size:14px">${g.local}</b><br><small style="font-size:11px; color:var(--text-sub)">${g.cartao} • ${g.pessoa} ${g.parcelas > 1 ? `(${g.parcelas}x)` : ''}</small></span>
+                    <div style="text-align:right">
+                        <b style="display:block; font-size:14px">R$ ${g.valor.toFixed(2)}</b>
+                        <button class="btn-acao" style="color:var(--primary)" onclick="prepararEdicaoGasto(${i})">✎</button>
+                        <button class="btn-acao" style="color:var(--danger)" onclick="delGasto(${i})">✕</button>
+                    </div>
                 </div>`).reverse().join('');
 
             document.getElementById('lista-fixas').innerHTML = (u.fixas || []).map((f, i) => `
                 <div class="gasto-item">
-                    <span>${f.nome} <br><small>Venc: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString()}</small></span>
-                    <div><b>R$ ${f.valor.toFixed(2)}</b><button class="btn-acao btn-edit" onclick="prepararEdicaoFixa(${i})">✎</button><button class="btn-acao btn-del" onclick="delFixa(${i})">✕</button></div>
+                    <span><b style="font-size:14px">${f.nome}</b><br><small style="font-size:11px; color:var(--text-sub)">Venc: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString('pt-BR')}</small></span>
+                    <div style="text-align:right">
+                        <b style="display:block; font-size:14px">R$ ${f.valor.toFixed(2)}</b>
+                        <button class="btn-acao" style="color:var(--primary)" onclick="prepararEdicaoFixa(${i})">✎</button>
+                        <button class="btn-acao" style="color:var(--danger)" onclick="delFixa(${i})">✕</button>
+                    </div>
                 </div>`).join('');
 
             let totalP = 0;
             document.getElementById('lista-poupanca').innerHTML = (u.poupanca_extrato || []).map((m, i) => {
                 totalP += (m.tipo === 'entrada' ? m.valor : -m.valor);
-                return `<div class="gasto-item"><span>${m.tipo==='entrada'?'📥':'📤'} ${new Date(m.data).toLocaleDateString()}</span><div><b style="color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}">R$ ${m.valor.toFixed(2)}</b><button class="btn-acao btn-edit" onclick="editarPoupanca(${i})">✎</button></div></div>`;
+                return `<div class="gasto-item">
+                    <span><small style="font-size:11px; color:var(--text-sub)">${new Date(m.data).toLocaleDateString('pt-BR')}</small><br>${m.tipo==='entrada'?'📥 Guardado':'📤 Retirado'}</span>
+                    <div style="text-align:right">
+                        <b style="display:block; font-size:14px; color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}">R$ ${m.valor.toFixed(2)}</b>
+                        <button class="btn-acao" style="color:var(--primary)" onclick="editarPoupanca(${i})">✎</button>
+                    </div>
+                </div>`;
             }).reverse().join('');
             document.getElementById('p-total').innerText = `R$ ${totalP.toFixed(2)}`;
         }
