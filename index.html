@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS FINANCE - Sistema Completo</title>
+    <title>NEXUS FINANCE - Estável</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
@@ -11,70 +11,44 @@
 
     <style>
         :root {
-            --bg: #020617;
-            --card-bg: rgba(15, 23, 42, 0.95);
-            --border: rgba(255, 255, 255, 0.08);
-            --primary: #6366f1;
-            --success: #10b981;
-            --danger: #f43f5e;
-            --text: #f1f5f9;
+            --bg: #020617; --card-bg: rgba(15, 23, 42, 0.95); --border: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1; --success: #10b981; --danger: #f43f5e; --text: #f1f5f9;
         }
 
         * { box-sizing: border-box; font-size: 13px; }
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--bg); color: var(--text); 
-            height: 100vh; margin: 0; overflow: hidden;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; margin: 0; overflow: hidden; }
 
         /* Navegação */
-        .nav-tabs {
-            display: flex; justify-content: center; gap: 20px;
-            padding: 15px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border);
-        }
-        .tab-btn {
-            background: none; border: none; color: var(--text); opacity: 0.5;
-            cursor: pointer; font-weight: 700; font-size: 14px; transition: 0.3s;
-            padding: 5px 15px; border-radius: 8px;
-        }
+        .nav-tabs { display: flex; justify-content: center; gap: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border); }
+        .tab-btn { background: none; border: none; color: var(--text); opacity: 0.5; cursor: pointer; font-weight: 700; transition: 0.3s; padding: 5px 15px; border-radius: 8px; }
         .tab-btn.active { opacity: 1; color: var(--primary); background: rgba(99, 102, 241, 0.1); }
 
         .view-container { padding: 20px; height: calc(100vh - 65px); overflow-y: auto; }
         .view { display: none; height: 100%; }
         .view.active { display: block; }
 
-        /* Estilos de Cards e UI */
-        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 20px; }
+        /* Cards e Layout */
+        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 20px; margin-bottom: 15px; }
         .grid-home { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         
-        .big-stat { text-align: center; padding: 40px; }
-        .big-stat h2 { font-size: 14px; opacity: 0.6; margin-bottom: 10px; }
-        .big-stat p { font-size: 42px; font-weight: 800; margin: 0; }
+        .big-stat { text-align: center; padding: 30px; }
+        .big-stat h2 { font-size: 11px; opacity: 0.6; margin-bottom: 5px; }
+        .big-stat p { font-size: 36px; font-weight: 800; margin: 0; }
 
-        input, select { 
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); 
-            background: rgba(0,0,0,0.2); color: white; margin-bottom: 10px;
-        }
+        input, select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: white; margin-bottom: 10px; }
         .botao { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
 
-        /* Layout Dashboard (Ajustado para enquadrar gráficos) */
-        .dashboard-layout { display: grid; grid-template-columns: 300px 1fr; gap: 15px; height: 100%; }
+        /* Dashboard Ajustado */
+        .dashboard-layout { display: grid; grid-template-columns: 280px 1fr; gap: 15px; height: 100%; }
         .charts-wrapper { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 15px; max-height: 250px; overflow: hidden; /* Mantém os gráficos no lugar */
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 10px; margin-bottom: 15px; max-height: 200px; 
         }
-        .chart-container { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 10px; text-align: center; border: 1px solid var(--border); }
-        canvas { max-height: 150px !important; width: 100% !important; }
-
-        .history-list { margin-top: 15px; overflow-y: auto; max-height: calc(100% - 280px); }
-        .gasto-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 10px 15px; background: rgba(255,255,255,0.03); 
-            border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border);
-        }
-        .btn-action { background: none; border: none; cursor: pointer; font-size: 14px; margin-left: 8px; }
-
-        /* Auth */
+        .chart-container { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 10px; border: 1px solid var(--border); height: 180px; }
+        
+        .history-list { overflow-y: auto; height: calc(100% - 215px); }
+        .gasto-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border); }
+        
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -83,25 +57,25 @@
     <div id="tela-auth" class="auth-overlay">
         <div class="card" style="width: 320px;">
             <h2 style="text-align: center; margin-bottom: 20px;">NEXUS FINANCE</h2>
-            <div id="auth-inputs">
+            <div id="auth-box">
                 <input type="text" id="usuario" placeholder="Usuário">
                 <input type="password" id="senha" placeholder="Senha">
                 <button class="botao" onclick="fazerLogin()">Entrar</button>
-                <p onclick="toggleAuth(true)" style="text-align:center; cursor:pointer; font-size:11px; margin-top:15px; opacity:0.6">Criar conta</p>
+                <p onclick="document.getElementById('auth-box').style.display='none'; document.getElementById('reg-box').style.display='block'" style="text-align:center; cursor:pointer; font-size:11px; margin-top:15px; opacity:0.6">Criar nova conta</p>
             </div>
-            <div id="reg-inputs" style="display:none">
+            <div id="reg-box" style="display:none">
                 <input type="text" id="cad-user" placeholder="Novo Usuário">
                 <input type="password" id="cad-senha" placeholder="Senha">
                 <button class="botao" style="background:var(--success)" onclick="registrarUsuario()">Cadastrar</button>
-                <p onclick="toggleAuth(false)" style="text-align:center; cursor:pointer; font-size:11px; margin-top:15px; opacity:0.6">Voltar</p>
+                <p onclick="document.getElementById('auth-box').style.display='block'; document.getElementById('reg-box').style.display='none'" style="text-align:center; cursor:pointer; font-size:11px; margin-top:15px; opacity:0.6">Voltar</p>
             </div>
         </div>
     </div>
 
     <nav class="nav-tabs" id="nav-app" style="display: none;">
-        <button class="tab-btn active" onclick="switchTab('home')">🏠 Início</button>
-        <button class="tab-btn" onclick="switchTab('cartoes')">💳 Cartões</button>
-        <button class="tab-btn" onclick="switchTab('fixas')">📌 Contas Fixas</button>
+        <button class="tab-btn active" onclick="switchTab('home')">Início</button>
+        <button class="tab-btn" onclick="switchTab('cartoes')">Cartões</button>
+        <button class="tab-btn" onclick="switchTab('fixas')">Contas Fixas</button>
         <button class="tab-btn" onclick="location.reload()" style="color:var(--danger)">Sair</button>
     </nav>
 
@@ -110,38 +84,37 @@
         <div id="view-home" class="view active">
             <div class="grid-home">
                 <div class="card big-stat">
-                    <h2>SALDO MENSAL</h2>
+                    <h2>SALDO DO MÊS</h2>
                     <p id="h-saldo-total" style="color: var(--success);">R$ 0,00</p>
-                    <button class="btn-action" onclick="editarSaldoMensal()" style="color:var(--primary); font-size:11px">✎ Editar Saldo</button>
+                    <button onclick="editarSaldoMensal()" style="background:none; border:none; color:var(--primary); cursor:pointer; margin-top:10px">✎ Editar Saldo</button>
                 </div>
                 <div class="card big-stat">
-                    <h2>SOBRANDO NO MÊS</h2>
+                    <h2>SOBRANDO</h2>
                     <p id="h-sobra">R$ 0,00</p>
                 </div>
             </div>
-            <div class="card" style="margin-top: 20px;">
-                <h3>Resumo de Gastos Fixos</h3>
-                <p id="resumo-fixas" style="opacity: 0.6;">Você tem R$ 0,00 em contas fixas este mês.</p>
+            <div class="card">
+                <h3>Resumo de Contas Fixas</h3>
+                <p id="resumo-fixas" style="opacity: 0.6;">Carregando...</p>
             </div>
         </div>
 
         <div id="view-cartoes" class="view">
             <div class="dashboard-layout">
                 <aside class="card">
-                    <h3>Lançar no Cartão</h3>
+                    <h3>Novo Lançamento</h3>
                     <input type="text" id="f-local" placeholder="Onde?">
                     <input type="number" id="f-valor" placeholder="Valor R$">
                     <input type="date" id="f-data">
                     <select id="f-cartao-select"></select>
                     <button class="botao" onclick="addGasto()">Lançar</button>
-                    
-                    <div style="margin-top:20px; border-top: 1px solid var(--border); padding-top:15px">
+                    <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:10px">
                         <input type="text" id="novo-banco" placeholder="Novo Banco">
                         <button class="botao" style="background:#334155" onclick="addBanco()">+ Adicionar Banco</button>
                     </div>
                 </aside>
                 
-                <section>
+                <section style="overflow:hidden">
                     <div class="charts-wrapper" id="container-graficos"></div>
                     <div class="card history-list" id="lista-financas"></div>
                 </section>
@@ -151,22 +124,20 @@
         <div id="view-fixas" class="view">
             <div class="grid-home">
                 <div class="card">
-                    <h3>Adicionar Conta Fixa</h3>
-                    <input type="text" id="fixa-nome" placeholder="Ex: Aluguel, Internet">
+                    <h3>Adicionar Fixa</h3>
+                    <input type="text" id="fixa-nome" placeholder="Nome (Ex: Aluguel)">
                     <input type="number" id="fixa-valor" placeholder="Valor R$">
-                    <button class="botao" style="background:var(--success)" onclick="addContaFixa()">Salvar Conta Fixa</button>
+                    <button class="botao" style="background:var(--success)" onclick="addContaFixa()">Salvar</button>
                 </div>
                 <div class="card">
-                    <h3>Minhas Contas Fixas</h3>
+                    <h3>Lista de Contas Fixas</h3>
                     <div id="lista-fixas"></div>
                 </div>
             </div>
         </div>
-
     </main>
 
     <script>
-        // Configuração Firebase (Seu Projeto)
         const firebaseConfig = {
             apiKey: "AIzaSyAgUHntWb0V0l6MoHJVxDMs5sstPSaH-lc",
             authDomain: "sistema-bernardo-1999.firebaseapp.com",
@@ -179,17 +150,31 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let userLogado = "", dados = {}, charts = {};
+        let userLogado = "", dados = {};
 
-        // Sincronização
-        db.ref('/').on('value', snap => {
-            dados = snap.val() || {};
-            if (userLogado) renderTudo();
-        });
+        // Sincronização em tempo real COM carregamento inicial forçado
+        function iniciarSync() {
+            db.ref('/').on('value', snap => {
+                dados = snap.val() || {};
+                renderTudo();
+            });
+        }
 
-        function toggleAuth(reg) {
-            document.getElementById('auth-inputs').style.display = reg ? 'none' : 'block';
-            document.getElementById('reg-inputs').style.display = reg ? 'block' : 'none';
+        function fazerLogin() {
+            const u = document.getElementById('usuario').value.toLowerCase().trim();
+            const s = document.getElementById('senha').value;
+            // Busca os dados antes de validar para garantir que não venha vazio
+            db.ref('/').once('value', snap => {
+                dados = snap.val() || {};
+                if (dados.usuarios && dados.usuarios[u] && dados.usuarios[u].senha === s) {
+                    userLogado = u;
+                    document.getElementById('tela-auth').style.display = "none";
+                    document.getElementById('nav-app').style.display = "flex";
+                    document.getElementById('main-app').style.display = "block";
+                    document.getElementById('f-data').valueAsDate = new Date();
+                    iniciarSync(); // Ativa o modo em tempo real após o login
+                } else { alert("Login incorreto!"); }
+            });
         }
 
         function switchTab(tabId) {
@@ -199,16 +184,44 @@
             event.currentTarget.classList.add('active');
         }
 
-        function fazerLogin() {
-            const u = document.getElementById('usuario').value.toLowerCase().trim();
-            const s = document.getElementById('senha').value;
-            if (dados.usuarios && dados.usuarios[u] && dados.usuarios[u].senha === s) {
-                userLogado = u;
-                document.getElementById('tela-auth').style.display = "none";
-                document.getElementById('nav-app').style.display = "flex";
-                document.getElementById('main-app').style.display = "block";
-                document.getElementById('f-data').valueAsDate = new Date();
-            } else { alert("Login inválido!"); }
+        function editarSaldoMensal() {
+            const atual = dados.usuarios[userLogado].saldoMensal || 0;
+            const novo = prompt("Novo Saldo Mensal:", atual);
+            if(novo !== null) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(novo));
+        }
+
+        function addGasto() {
+            const l = document.getElementById('f-local').value, v = parseFloat(document.getElementById('f-valor').value);
+            const d = document.getElementById('f-data').value, c = document.getElementById('f-cartao-select').value;
+            if(!l || isNaN(v)) return;
+            let f = dados.usuarios[userLogado].financas || [];
+            f.push({ local: l, valor: v, data: d, cartao: c });
+            db.ref(`usuarios/${userLogado}/financas`).set(f);
+            document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = "";
+        }
+
+        function editarGasto(idx) {
+            let f = dados.usuarios[userLogado].financas;
+            const novo = prompt("Novo valor para " + f[idx].local, f[idx].valor);
+            if(novo !== null) { f[idx].valor = parseFloat(novo); db.ref(`usuarios/${userLogado}/financas`).set(f); }
+        }
+
+        function addContaFixa() {
+            const n = document.getElementById('fixa-nome').value, v = parseFloat(document.getElementById('fixa-valor').value);
+            if(!n || isNaN(v)) return;
+            let fx = dados.usuarios[userLogado].fixas || [];
+            fx.push({ nome: n, valor: v });
+            db.ref(`usuarios/${userLogado}/fixas`).set(fx);
+            document.getElementById('fixa-nome').value = ""; document.getElementById('fixa-valor').value = "";
+        }
+
+        function addBanco() {
+            const n = document.getElementById('novo-banco').value.trim();
+            if(!n) return;
+            let c = dados.usuarios[userLogado].cartoes || [];
+            c.push(n);
+            db.ref(`usuarios/${userLogado}/cartoes`).set(c);
+            document.getElementById('novo-banco').value = "";
         }
 
         function registrarUsuario() {
@@ -216,109 +229,63 @@
             const s = document.getElementById('cad-senha').value;
             if(!u || !s) return;
             db.ref('usuarios/' + u).set({ senha: s, saldoMensal: 0, cartoes: ['Nubank'], financas: [], fixas: [] });
-            alert("Cadastrado!"); toggleAuth(false);
-        }
-
-        function editarSaldoMensal() {
-            const novo = prompt("Digite o novo saldo mensal:", dados.usuarios[userLogado].saldoMensal);
-            if(novo !== null) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(novo));
-        }
-
-        function addGasto() {
-            const l = document.getElementById('f-local').value;
-            const v = parseFloat(document.getElementById('f-valor').value);
-            const d = document.getElementById('f-data').value;
-            const c = document.getElementById('f-cartao-select').value;
-            if(!l || isNaN(v)) return;
-            let f = dados.usuarios[userLogado].financas || [];
-            f.push({ local: l, valor: v, data: d, cartao: c });
-            db.ref(`usuarios/${userLogado}/financas`).set(f);
-        }
-
-        function addContaFixa() {
-            const n = document.getElementById('fixa-nome').value;
-            const v = parseFloat(document.getElementById('fixa-valor').value);
-            if(!n || isNaN(v)) return;
-            let fx = dados.usuarios[userLogado].fixas || [];
-            fx.push({ nome: n, valor: v });
-            db.ref(`usuarios/${userLogado}/fixas`).set(fx);
-        }
-
-        function editarGasto(idx) {
-            let f = dados.usuarios[userLogado].financas;
-            const novoValor = prompt("Novo valor para " + f[idx].local, f[idx].valor);
-            if(novoValor !== null) {
-                f[idx].valor = parseFloat(novoValor);
-                db.ref(`usuarios/${userLogado}/financas`).set(f);
-            }
+            alert("Conta criada!"); location.reload();
         }
 
         function renderTudo() {
             const user = dados.usuarios[userLogado];
+            if(!user) return;
             const saldoM = user.saldoMensal || 0;
             let totalG = 0, totalF = 0;
 
-            // Cálculos
             (user.financas || []).forEach(g => totalG += g.valor);
             (user.fixas || []).forEach(f => totalF += f.valor);
 
-            // Home
             document.getElementById('h-saldo-total').innerText = `R$ ${saldoM.toFixed(2)}`;
             const sobra = saldoM - totalG - totalF;
-            const sobraEl = document.getElementById('h-sobra');
-            sobraEl.innerText = `R$ ${sobra.toFixed(2)}`;
-            sobraEl.style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
-            document.getElementById('resumo-fixas').innerText = `Suas contas fixas somam R$ ${totalF.toFixed(2)}.`;
+            const sEl = document.getElementById('h-sobra');
+            sEl.innerText = `R$ ${sobra.toFixed(2)}`;
+            sEl.style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
+            document.getElementById('resumo-fixas').innerText = `Total em contas fixas: R$ ${totalF.toFixed(2)}`;
 
-            // Dashboard & Gráficos
             const containerG = document.getElementById('container-graficos');
             containerG.innerHTML = "";
             const bancos = user.cartoes || [];
             document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
 
             bancos.forEach(b => {
-                const gastosBanco = (user.financas || []).filter(g => g.cartao === b);
-                if(gastosBanco.length === 0) return;
-
-                const resumo = {};
-                gastosBanco.forEach(g => resumo[g.local] = (resumo[g.local] || 0) + g.valor);
-
+                const gastosB = (user.financas || []).filter(g => g.cartao === b);
+                if(gastosB.length === 0) return;
+                const resumo = {}; gastosB.forEach(g => resumo[g.local] = (resumo[g.local] || 0) + g.valor);
+                
                 const div = document.createElement('div');
                 div.className = 'chart-container';
-                div.innerHTML = `<h5>${b}</h5><canvas id="chart-${b}"></canvas>`;
+                div.innerHTML = `<h5 style="margin:0 0 5px 0; font-size:10px">${b}</h5><canvas id="c-${b}"></canvas>`;
                 containerG.appendChild(div);
 
-                setTimeout(() => {
-                    new Chart(document.getElementById(`chart-${b}`), {
-                        type: 'doughnut',
-                        data: {
-                            labels: Object.keys(resumo),
-                            datasets: [{ data: Object.values(resumo), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'], borderWidth: 0 }]
-                        },
-                        options: { plugins: { legend: { display: false } }, cutout: '70%', responsive: true, maintainAspectRatio: false }
-                    });
-                }, 50);
+                new Chart(document.getElementById(`c-${b}`), {
+                    type: 'doughnut',
+                    data: { labels: Object.keys(resumo), datasets: [{ data: Object.values(resumo), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'], borderWidth: 0 }] },
+                    options: { plugins: { legend: { display: false } }, cutout: '70%', maintainAspectRatio: false }
+                });
             });
 
-            // Histórico com Edição
             document.getElementById('lista-financas').innerHTML = (user.financas || []).map((g, i) => `
                 <div class="gasto-item">
-                    <span><b>[${g.cartao}]</b> ${g.local}</span>
+                    <span><b>${g.cartao}</b> | ${g.local}</span>
                     <div>
                         <b style="color:var(--primary)">R$ ${g.valor.toFixed(2)}</b>
-                        <button class="btn-action" onclick="editarGasto(${i})">✎</button>
-                        <button class="btn-action" style="color:var(--danger)" onclick="if(confirm('Excluir?')){ let f=user.financas; f.splice(${i},1); db.ref('usuarios/${userLogado}/financas').set(f); }">✕</button>
+                        <button onclick="editarGasto(${i})" style="background:none; border:none; color:var(--text); cursor:pointer; margin-left:10px">✎</button>
+                        <button onclick="if(confirm('Excluir?')){ let f=user.financas; f.splice(${i},1); db.ref('usuarios/${userLogado}/financas').set(f); }" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:5px">✕</button>
                     </div>
-                </div>
-            `).reverse().join('');
+                </div>`).reverse().join('');
 
-            // Lista Fixas
             document.getElementById('lista-fixas').innerHTML = (user.fixas || []).map((f, i) => `
                 <div class="gasto-item">
                     <span>${f.nome}</span>
                     <b style="color:var(--danger)">R$ ${f.valor.toFixed(2)}</b>
-                </div>
-            `).join('');
+                    <button onclick="if(confirm('Excluir?')){ let fx=user.fixas; fx.splice(${i},1); db.ref('usuarios/${userLogado}/fixas').set(fx); }" style="background:none; border:none; color:var(--danger); cursor:pointer">✕</button>
+                </div>`).join('');
         }
     </script>
 </body>
