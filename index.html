@@ -2,65 +2,82 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS FINANCE - V6.0 Official</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXUS FINANCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --bg: #020617; --card-bg: rgba(15, 23, 42, 0.95); --border: rgba(255, 255, 255, 0.08);
-            --primary: #6366f1; --success: #10b981; --danger: #f43f5e; --warning: #f59e0b; --text: #f1f5f9; --savings: #ec4899;
+            --bg: #f8fafc; --card-bg: #ffffff; --border: #e2e8f0;
+            --primary: #4f46e5; --success: #10b981; --danger: #ef4444; 
+            --warning: #f59e0b; --text-main: #0f172a; --text-sub: #64748b; --savings: #db2777;
         }
 
-        * { box-sizing: border-box; font-size: 12.5px; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; margin: 0; overflow: hidden; }
+        * { box-sizing: border-box; font-size: 14px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; min-height: 100vh; }
 
-        .nav-tabs { display: flex; justify-content: center; gap: 10px; padding: 12px; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--border); overflow-x: auto; }
-        .tab-btn { background: none; border: none; color: var(--text); opacity: 0.5; cursor: pointer; font-weight: 700; padding: 6px 12px; border-radius: 8px; white-space: nowrap; }
-        .tab-btn.active { opacity: 1; color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+        .nav-tabs { 
+            display: flex; gap: 5px; padding: 10px; background: var(--card-bg); 
+            border-bottom: 1px solid var(--border); overflow-x: auto; position: sticky; top: 0; z-index: 50;
+        }
+        .tab-btn { 
+            background: none; border: none; color: var(--text-sub); cursor: pointer; 
+            font-weight: 600; padding: 10px 18px; border-radius: 12px; white-space: nowrap; transition: 0.2s;
+        }
+        .tab-btn.active { color: var(--primary); background: #eef2ff; }
 
-        .view-container { padding: 15px; height: calc(100vh - 60px); overflow-y: auto; }
-        .view { display: none; height: 100%; }
+        .view-container { padding: 15px; max-width: 1200px; margin: 0 auto; }
+        .view { display: none; }
         .view.active { display: block; }
 
-        .card { background: var(--card-bg); border-radius: 18px; border: 1px solid var(--border); padding: 18px; margin-bottom: 12px; }
-        .grid-layout { display: grid; grid-template-columns: 280px 1fr; gap: 15px; height: 100%; }
+        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         
-        /* GRÁFICOS REESTRUTURADOS */
-        .charts-wrapper { display: flex; flex-wrap: nowrap; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; min-height: 200px; }
-        .chart-item { min-width: 220px; background: rgba(255,255,255,0.02); border-radius: 15px; padding: 15px; border: 1px solid var(--border); text-align: center; }
-        .chart-item h5 { margin: 0 0 10px 0; font-size: 13px; color: var(--primary); text-transform: uppercase; }
-        .canvas-container { height: 140px; position: relative; }
-
-        input, select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: white; margin-bottom: 8px; }
-        .botao { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; width: 100%; }
-        .botao:active { transform: scale(0.98); }
-
-        .history-list { overflow-y: auto; height: calc(100% - 230px); }
-        .gasto-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border); }
+        .grid-layout { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 900px) { .grid-layout { grid-template-columns: 320px 1fr; } }
         
-        .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
+        .charts-wrapper { display: flex; flex-wrap: nowrap; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
+        .chart-item { min-width: 280px; background: var(--card-bg); border-radius: 18px; padding: 15px; border: 1px solid var(--border); position: relative; }
+        .chart-item h5 { margin: 0 0 10px 0; color: var(--text-main); font-weight: 800; text-align: center; text-transform: uppercase; font-size: 11px; }
+        .canvas-container { height: 180px; position: relative; }
+
+        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border); background: #fff; color: var(--text-main); margin-bottom: 12px; font-size: 16px; transition: 0.2s; }
+        input:focus { border-color: var(--primary); outline: none; }
+        
+        .botao { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; }
+        
+        .gasto-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px; background: var(--card-bg); border-radius: 16px; 
+            margin-bottom: 10px; border: 1px solid var(--border); 
+        }
+        .badge-cartao { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: #eef2ff; color: var(--primary); font-weight: 700; margin-left: 8px; border: 1px solid #c7d2fe; }
+        
+        .btn-acao { background: none; border: none; cursor: pointer; font-size: 18px; margin-left: 10px; transition: 0.2s; }
+        .btn-edit { color: var(--primary); }
+        .btn-del { color: var(--danger); }
+
+        .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body>
 
     <div id="tela-auth" class="auth-overlay">
-        <div class="card" style="width: 300px;">
-            <h2 style="text-align: center;">NEXUS FINANCE</h2>
+        <div class="card" style="width: 100%; max-width: 360px; text-align: center;">
+            <h2 style="font-weight: 800; color: var(--primary);">NEXUS FINANCE</h2>
             <div id="box-login">
                 <input type="text" id="usuario" placeholder="Usuário">
                 <input type="password" id="senha" placeholder="Senha">
                 <button class="botao" onclick="fazerLogin()">Entrar</button>
-                <p onclick="toggleAuth(true)" style="text-align:center; font-size:10px; margin-top:15px; cursor:pointer; opacity:0.6">Não tem conta? Cadastre-se</p>
+                <p onclick="toggleAuth(true)" style="margin-top:20px; cursor:pointer; color: var(--text-sub);">Cadastre-se</p>
             </div>
             <div id="box-cad" style="display:none">
-                <input type="text" id="cad-user" placeholder="Novo Usuário">
+                <input type="text" id="cad-user" placeholder="Usuário">
                 <input type="password" id="cad-pass" placeholder="Senha">
-                <button class="botao" style="background:var(--success)" onclick="registrar()">Criar Conta</button>
-                <p onclick="toggleAuth(false)" style="text-align:center; font-size:10px; margin-top:15px; cursor:pointer; opacity:0.6">Voltar ao Login</p>
+                <button class="botao" style="background:var(--success)" onclick="registrar()">Criar</button>
+                <p onclick="toggleAuth(false)" style="margin-top:20px; cursor:pointer;">Voltar</p>
             </div>
         </div>
     </div>
@@ -76,19 +93,19 @@
     <main class="view-container" id="main-app" style="display: none;">
         
         <div id="view-home" class="view active">
-            <div id="alertas-vencimento" class="card" style="display:none; border-color: var(--warning); background: rgba(245,158,11,0.05);">
-                <strong style="color: var(--warning)">⚠️ Próximos Vencimentos:</strong>
-                <ul id="lista-alertas" style="margin: 10px 0 0 0; padding-left: 20px;"></ul>
+            <div id="alertas-vencimento" class="card" style="display:none; border-left: 5px solid var(--warning); background: #fffbeb;">
+                <strong style="color: #92400e;">⚠️ Atenção (Próximos 10 dias):</strong>
+                <ul id="lista-alertas" style="margin: 8px 0 0 0; padding-left: 20px; color: #b45309; line-height: 1.6;"></ul>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="card" style="text-align:center; padding: 25px;">
-                    <span style="opacity: 0.6;">SALDO MENSAL</span>
-                    <p id="h-saldo-total" style="font-size:30px; font-weight:800; color:var(--success); margin:5px 0">R$ 0,00</p>
-                    <button onclick="editarSaldoMensal()" style="background:none; border:none; color:var(--primary); cursor:pointer;">✎ Editar</button>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                <div class="card" style="text-align:center;">
+                    <span style="color: var(--text-sub); font-weight: 700; font-size: 11px;">ORÇAMENTO MENSAL</span>
+                    <p id="h-saldo-total" style="font-size:36px; font-weight:800; margin:10px 0">R$ 0,00</p>
+                    <button class="botao" onclick="editarSaldoMensal()" style="padding: 8px; font-size: 12px; background: #f1f5f9; color: var(--primary); box-shadow: none;">✎ Editar Valor</button>
                 </div>
-                <div class="card" style="text-align:center; padding: 25px;">
-                    <span style="opacity: 0.6;">DISPONÍVEL</span>
-                    <p id="h-sobra" style="font-size:30px; font-weight:800; margin:5px 0">R$ 0,00</p>
+                <div class="card" style="text-align:center;">
+                    <span style="color: var(--text-sub); font-weight: 700; font-size: 11px;">VALOR DISPONÍVEL</span>
+                    <p id="h-sobra" style="font-size:36px; font-weight:800; margin:10px 0">R$ 0,00</p>
                 </div>
             </div>
         </div>
@@ -97,85 +114,66 @@
             <div class="grid-layout">
                 <aside>
                     <div class="card">
-                        <h3>Novo Lançamento</h3>
+                        <h3 id="titulo-form-gasto">Novo Gasto</h3>
+                        <input type="hidden" id="edit-index-gasto" value="-1">
                         <input type="text" id="f-local" placeholder="Onde?">
-                        <input type="number" id="f-valor" placeholder="Valor Total">
-                        <div style="display: flex; gap: 5px; align-items: center; margin-bottom: 8px;">
-                            <input type="checkbox" id="check-parcela" onchange="document.getElementById('c-parc').style.display=this.checked?'block':'none'" style="width:15px; height:15px; margin:0">
-                            <label style="font-size: 11px;">Compra Parcelada</label>
+                        <input type="number" id="f-valor" placeholder="Valor">
+                        <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; background:#f8fafc; padding:10px; border-radius:12px">
+                            <input type="checkbox" id="check-parcela" onchange="document.getElementById('c-parc').style.display=this.checked?'block':'none'">
+                            <label>Parcelar</label>
                         </div>
-                        <div id="c-parc" style="display:none; margin-bottom:8px">
-                            <input type="number" id="f-qtd-parcelas" placeholder="Qtd. Parcelas" value="1">
-                        </div>
-                        <input type="text" id="f-pessoa" placeholder="Quem gastou?">
+                        <div id="c-parc" style="display:none"><input type="number" id="f-qtd-parcelas" placeholder="Vezes" value="1"></div>
+                        <input type="text" id="f-pessoa" placeholder="Quem?">
                         <input type="date" id="f-data">
                         <select id="f-cartao-select"></select>
-                        <button class="botao" onclick="addGasto()">Salvar Gasto</button>
-                    </div>
-                    <div class="card">
-                        <h3>Adicionar Banco</h3>
-                        <input type="text" id="novo-banco" placeholder="Nome do Banco">
-                        <button class="botao" style="background:#334155" onclick="addBanco()">+ Adicionar</button>
-                    </div>
-                    <div class="card">
-                        <h3 style="color:var(--primary)">Total por Pessoa</h3>
-                        <div id="lista-por-pessoa"></div>
+                        <button class="botao" id="btn-salvar-gasto" onclick="addGasto()">Salvar Compra</button>
                     </div>
                 </aside>
-                <section style="overflow:hidden">
+                <section>
                     <div class="charts-wrapper" id="container-graficos"></div>
-                    <div class="card history-list" id="lista-financas"></div>
+                    <div id="lista-financas"></div>
                 </section>
             </div>
         </div>
 
         <div id="view-fixas" class="view">
             <div class="grid-layout">
-                <div class="card">
-                    <h3>Cadastrar Fixa</h3>
-                    <input type="text" id="fixa-nome" placeholder="Ex: Aluguel">
-                    <input type="number" id="fixa-valor" placeholder="R$ 0,00">
-                    <input type="date" id="fixa-vencimento">
-                    <button class="botao" style="background:var(--success)" onclick="addContaFixa()">Salvar</button>
-                    <div class="card" style="margin-top:20px; background:rgba(255,255,255,0.03); border-color:var(--danger)">
-                        <h4 style="margin:0">Total Fixo</h4>
-                        <p id="resumo-fixas" style="font-size: 24px; font-weight: 800; color: var(--danger);">R$ 0,00</p>
+                <aside>
+                    <div class="card">
+                        <h3 id="titulo-form-fixa">Conta Fixa</h3>
+                        <input type="hidden" id="edit-index-fixa" value="-1">
+                        <input type="text" id="fixa-nome" placeholder="Nome">
+                        <input type="number" id="fixa-valor" placeholder="Valor">
+                        <input type="date" id="fixa-vencimento">
+                        <button class="botao" id="btn-salvar-fixa" style="background:var(--success)" onclick="addContaFixa()">Salvar Fixa</button>
                     </div>
-                </div>
-                <div class="card" style="overflow-y:auto">
-                    <h3>Lista de Contas Fixas</h3>
-                    <div id="lista-fixas"></div>
-                </div>
+                </aside>
+                <section id="lista-fixas"></section>
             </div>
         </div>
 
         <div id="view-poupanca" class="view">
-            <div style="display: grid; grid-template-columns: 350px 1fr; gap: 15px;">
-                <aside>
-                    <div class="card" style="text-align:center; border-color: var(--savings); padding:30px">
-                        <span style="color:var(--savings)">TOTAL GUARDADO</span>
-                        <p id="p-total" style="color: var(--savings); font-size:32px; font-weight:800">R$ 0,00</p>
+            <div class="grid-layout">
+                <div class="card" style="text-align:center; border-top: 5px solid var(--savings);">
+                    <span style="color:var(--savings); font-weight:800">RESERVA TOTAL</span>
+                    <p id="p-total" style="font-size:36px; font-weight:800; margin:10px 0">R$ 0,00</p>
+                </div>
+                <div class="card">
+                    <h3 id="titulo-poupanca">Movimentar Reserva</h3>
+                    <input type="hidden" id="edit-index-poupanca" value="-1">
+                    <input type="number" id="p-valor" placeholder="Valor">
+                    <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                        <button class="botao" style="background:var(--success); flex: 1;" onclick="movimentarPoupanca('entrada')">Guardar</button>
+                        <button class="botao" style="background:var(--danger); flex: 1;" onclick="movimentarPoupanca('saida')">Retirar</button>
+                        <button class="botao" style="background:#64748b; width: 100%; margin-top: 5px;" onclick="zerarPoupanca()">♻ Zerar Reserva</button>
                     </div>
-                    <div class="card">
-                        <h3>Movimentar</h3>
-                        <input type="number" id="p-valor" placeholder="Valor R$">
-                        <div style="display: flex; gap: 10px;">
-                            <button class="botao" style="background:var(--success)" onclick="movimentarPoupanca('entrada')">Guardar</button>
-                            <button class="botao" style="background:var(--danger)" onclick="movimentarPoupanca('saida')">Retirar</button>
-                        </div>
-                    </div>
-                </aside>
-                <section class="card">
-                    <h3>Histórico da Poupança</h3>
-                    <div id="lista-poupanca" style="overflow-y:auto; height:450px"></div>
-                </section>
+                </div>
+                <div id="lista-poupanca"></div>
             </div>
         </div>
-
     </main>
 
     <script>
-        // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAgUHntWb0V0l6MoHJVxDMs5sstPSaH-lc",
             authDomain: "sistema-bernardo-1999.firebaseapp.com",
@@ -187,21 +185,11 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
         let userLogado = "", dados = {};
 
-        // AUTH
         function toggleAuth(isCad) {
             document.getElementById('box-login').style.display = isCad ? 'none' : 'block';
             document.getElementById('box-cad').style.display = isCad ? 'block' : 'none';
-        }
-
-        function registrar() {
-            const u = document.getElementById('cad-user').value.toLowerCase().trim();
-            const s = document.getElementById('cad-pass').value;
-            if(!u || !s) return alert("Preencha tudo");
-            db.ref('usuarios/'+u).set({ senha: s, saldoMensal: 0, cartoes: ['Nubank'], financas: [], fixas: [], poupanca_extrato: [] });
-            alert("Sucesso! Faça o login."); toggleAuth(false);
         }
 
         function fazerLogin() {
@@ -214,9 +202,8 @@
                     document.getElementById('tela-auth').style.display = "none";
                     document.getElementById('nav-app').style.display = "flex";
                     document.getElementById('main-app').style.display = "block";
-                    document.getElementById('f-data').valueAsDate = new Date();
                     db.ref('/').on('value', s => { dados = s.val(); renderTudo(); });
-                } else { alert("Usuário ou senha inválidos."); }
+                } else { alert("Erro!"); }
             });
         }
 
@@ -227,132 +214,193 @@
             event.currentTarget.classList.add('active');
         }
 
-        // LÓGICA DE NEGÓCIO
         function addGasto() {
-            const total = parseFloat(document.getElementById('f-valor').value);
-            const isParcelado = document.getElementById('check-parcela').checked;
-            const qtdParc = isParcelado ? parseInt(document.getElementById('f-qtd-parcelas').value) : 1;
-            
-            // DIVISÃO DA PARCELA:
-            const valorSalvar = isParcelado ? (total / qtdParc) : total;
-
+            const index = parseInt(document.getElementById('edit-index-gasto').value);
+            const v = parseFloat(document.getElementById('f-valor').value);
+            const par = document.getElementById('check-parcela').checked ? parseInt(document.getElementById('f-qtd-parcelas').value) : 1;
             const l = document.getElementById('f-local').value;
             const p = document.getElementById('f-pessoa').value || "Eu";
             const c = document.getElementById('f-cartao-select').value;
             const d = document.getElementById('f-data').value;
-
-            if(!l || isNaN(total)) return;
-            
+            if(!l || isNaN(v)) return;
             let list = dados.usuarios[userLogado].financas || [];
-            list.push({ local: l, valor: valorSalvar, pessoa: p, parcelas: qtdParc, cartao: c, data: d });
+            const novoItem = { local: l, valor: v/par, pessoa: p, parcelas: par, cartao: c, data: d };
+            if(index === -1) list.push(novoItem); else list[index] = novoItem;
             db.ref(`usuarios/${userLogado}/financas`).set(list);
-            
+            limparFormGasto();
+        }
+
+        function prepararEditGasto(i) {
+            const g = dados.usuarios[userLogado].financas[i];
+            document.getElementById('f-local').value = g.local;
+            document.getElementById('f-valor').value = g.valor * g.parcelas;
+            document.getElementById('f-pessoa').value = g.pessoa;
+            document.getElementById('f-data').value = g.data;
+            document.getElementById('f-cartao-select').value = g.cartao;
+            document.getElementById('edit-index-gasto').value = i;
+            document.getElementById('titulo-form-gasto').innerText = "Editar Gasto";
+            document.getElementById('btn-salvar-gasto').innerText = "Atualizar Gasto";
+            window.scrollTo(0,0);
+        }
+
+        function limparFormGasto() {
+            document.getElementById('edit-index-gasto').value = "-1";
+            document.getElementById('titulo-form-gasto').innerText = "Novo Gasto";
+            document.getElementById('btn-salvar-gasto').innerText = "Salvar Compra";
             document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = "";
         }
 
-        function movimentarPoupanca(tipo) {
-            const v = parseFloat(document.getElementById('p-valor').value);
-            if(isNaN(v)) return;
-            let extrato = dados.usuarios[userLogado].poupanca_extrato || [];
-            extrato.push({ tipo: tipo, valor: v, data: new Date().toISOString() });
-            db.ref(`usuarios/${userLogado}/poupanca_extrato`).set(extrato);
-            document.getElementById('p-valor').value = "";
-        }
-
         function addContaFixa() {
+            const index = parseInt(document.getElementById('edit-index-fixa').value);
             const n = document.getElementById('fixa-nome').value, v = parseFloat(document.getElementById('fixa-valor').value);
             const venc = document.getElementById('fixa-vencimento').value;
             if(!n || isNaN(v)) return;
             let list = dados.usuarios[userLogado].fixas || [];
-            list.push({ nome: n, valor: v, vencimento: venc });
+            const novoItem = { nome: n, valor: v, vencimento: venc };
+            if(index === -1) list.push(novoItem); else list[index] = novoItem;
             db.ref(`usuarios/${userLogado}/fixas`).set(list);
+            limparFormFixa();
+        }
+
+        function prepararEditFixa(i) {
+            const f = dados.usuarios[userLogado].fixas[i];
+            document.getElementById('fixa-nome').value = f.nome;
+            document.getElementById('fixa-valor').value = f.valor;
+            document.getElementById('fixa-vencimento').value = f.vencimento;
+            document.getElementById('edit-index-fixa').value = i;
+            document.getElementById('titulo-form-fixa').innerText = "Editar Fixa";
+            window.scrollTo(0,0);
+        }
+
+        function limparFormFixa() {
+            document.getElementById('edit-index-fixa').value = "-1";
+            document.getElementById('titulo-form-fixa').innerText = "Conta Fixa";
             document.getElementById('fixa-nome').value = ""; document.getElementById('fixa-valor').value = "";
         }
 
-        function addBanco() {
-            const n = document.getElementById('novo-banco').value.trim();
-            if(!n) return;
-            let b = dados.usuarios[userLogado].cartoes || [];
-            b.push(n); db.ref(`usuarios/${userLogado}/cartoes`).set(b);
-            document.getElementById('novo-banco').value = "";
+        // LÓGICA POUPANÇA ATUALIZADA
+        function movimentarPoupanca(tipo) {
+            const v = parseFloat(document.getElementById('p-valor').value);
+            const index = parseInt(document.getElementById('edit-index-poupanca').value);
+            if(isNaN(v)) return;
+            let list = dados.usuarios[userLogado].poupanca_extrato || [];
+            const novoItem = { tipo: tipo, valor: v, data: new Date().toISOString() };
+            
+            if(index === -1) list.push(novoItem); else list[index] = novoItem;
+            
+            db.ref(`usuarios/${userLogado}/poupanca_extrato`).set(list);
+            document.getElementById('p-valor').value = "";
+            document.getElementById('edit-index-poupanca').value = "-1";
+            document.getElementById('titulo-poupanca').innerText = "Movimentar Reserva";
+        }
+
+        function prepararEditPoupanca(i) {
+            const m = dados.usuarios[userLogado].poupanca_extrato[i];
+            document.getElementById('p-valor').value = m.valor;
+            document.getElementById('edit-index-poupanca').value = i;
+            document.getElementById('titulo-poupanca').innerText = "Editar Registro";
+            window.scrollTo(0,0);
+        }
+
+        function delPoupanca(i) {
+            if(confirm('Excluir este registro?')) {
+                let list = [...dados.usuarios[userLogado].poupanca_extrato];
+                list.splice(i, 1);
+                db.ref(`usuarios/${userLogado}/poupanca_extrato`).set(list);
+            }
+        }
+
+        function zerarPoupanca() {
+            if(confirm('Deseja zerar todo o saldo da poupança? Isso apagará o histórico.')) {
+                db.ref(`usuarios/${userLogado}/poupanca_extrato`).set([]);
+            }
         }
 
         function delGasto(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].financas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/financas`).set(f); } }
         function delFixa(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].fixas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/fixas`).set(f); } }
-        function editarSaldoMensal() { const n = prompt("Novo saldo mensal:", dados.usuarios[userLogado].saldoMensal); if(n) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(n)); }
+        function editarSaldoMensal() { const n = prompt("Novo orçamento:", dados.usuarios[userLogado].saldoMensal); if(n) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(n)); }
 
-        // RENDERIZAÇÃO
+        Chart.register({
+            id: 'centerText',
+            afterDraw: (chart) => {
+                if (chart.options.plugins.centerText) {
+                    const { ctx, chartArea: { top, bottom, left, right, width, height } } = chart;
+                    ctx.save(); ctx.font = 'bold 16px sans-serif'; ctx.fillStyle = '#0f172a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText(chart.options.plugins.centerText.text, left + width / 2, top + height / 2); ctx.restore();
+                }
+            }
+        });
+
         function renderTudo() {
             const user = dados.usuarios[userLogado];
             if(!user) return;
-            let tG = 0, tF = 0, alertas = "", porPessoa = {};
+            let tG = 0, tF = 0, alertas = "";
             const hoje = new Date();
 
-            (user.financas || []).forEach(g => {
-                tG += g.valor;
-                porPessoa[g.pessoa] = (porPessoa[g.pessoa] || 0) + g.valor;
-            });
-
+            (user.financas || []).forEach(g => tG += g.valor);
             (user.fixas || []).forEach(f => {
                 tF += f.valor;
                 const dv = new Date(f.vencimento + "T12:00:00");
-                if((dv-hoje)/(1000*60*60*24) <= 7 && (dv-hoje)/(1000*60*60*24) >= -1) alertas += `<li>${f.nome} (${dv.toLocaleDateString()})</li>`;
+                const diff = (dv - hoje) / (1000 * 60 * 60 * 24);
+                if(diff <= 10 && diff >= -1) alertas += `<li>${f.nome} - Vence dia ${dv.toLocaleDateString()}</li>`;
             });
 
-            // Stats Home
             document.getElementById('h-saldo-total').innerText = `R$ ${(user.saldoMensal || 0).toFixed(2)}`;
             const sobra = (user.saldoMensal || 0) - tG - tF;
             document.getElementById('h-sobra').innerText = `R$ ${sobra.toFixed(2)}`;
             document.getElementById('h-sobra').style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
-            document.getElementById('resumo-fixas').innerText = `R$ ${tF.toFixed(2)}`;
             document.getElementById('alertas-vencimento').style.display = alertas ? "block" : "none";
             document.getElementById('lista-alertas').innerHTML = alertas;
 
-            // Poupanca
-            let totalP = 0;
-            document.getElementById('lista-poupanca').innerHTML = (user.poupanca_extrato || []).map(m => {
-                if(m.tipo === 'entrada') totalP += m.valor; else totalP -= m.valor;
-                return `<div class="gasto-item">
-                    <span>${m.tipo==='entrada'?'📥 Guardado':'📤 Retirado'} <br><small style="opacity:0.5">${new Date(m.data).toLocaleDateString()}</small></span>
-                    <b style="color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}">R$ ${m.valor.toFixed(2)}</b>
-                </div>`;
-            }).reverse().join('');
-            document.getElementById('p-total').innerText = `R$ ${totalP.toFixed(2)}`;
-
-            // Total por Pessoa
-            document.getElementById('lista-por-pessoa').innerHTML = Object.keys(porPessoa).map(p => `
-                <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.05)">
-                    <span>${p}</span> <b>R$ ${porPessoa[p].toFixed(2)}</b>
-                </div>
-            `).join('');
-
-            // Gráficos e Históricos
             const bancos = user.cartoes || ['Nubank'];
             document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
-            
             const cG = document.getElementById('container-graficos'); cG.innerHTML = "";
             bancos.forEach(b => {
                 const gastosB = (user.financas || []).filter(g => g.cartao === b);
-                if(gastosB.length > 0) {
+                const totalB = gastosB.reduce((acc, curr) => acc + curr.valor, 0);
+                if(totalB > 0) {
                     const res = {}; gastosB.forEach(g => res[g.local] = (res[g.local] || 0) + g.valor);
                     const div = document.createElement('div'); div.className = 'chart-item';
                     div.innerHTML = `<h5>${b}</h5><div class="canvas-container"><canvas id="c-${b}"></canvas></div>`;
                     cG.appendChild(div);
-                    new Chart(document.getElementById(`c-${b}`), { type: 'doughnut', data: { labels: Object.keys(res), datasets: [{ data: Object.values(res), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'], borderWidth: 0 }] }, options: { plugins: { legend: { display: false } }, cutout: '70%', maintainAspectRatio: false } });
+                    new Chart(document.getElementById(`c-${b}`), { type: 'doughnut', data: { labels: Object.keys(res), datasets: [{ data: Object.values(res), backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444'], borderWidth: 2 }] }, options: { plugins: { legend: { display: false }, centerText: { text: `R$ ${totalB.toFixed(0)}` } }, cutout: '80%', maintainAspectRatio: false } });
                 }
             });
 
             document.getElementById('lista-financas').innerHTML = (user.financas || []).map((g, i) => `
                 <div class="gasto-item">
-                    <span><b>${g.local}</b> <small>(${g.pessoa})</small> ${g.parcelas > 1 ? `<br><small style="color:var(--warning)">Parcelado em ${g.parcelas}x</small>` : ''}</span>
-                    <div><b>R$ ${g.valor.toFixed(2)}</b> <button onclick="delGasto(${i})" style="color:var(--danger); background:none; border:none; margin-left:10px; cursor:pointer">✕</button></div>
+                    <span><b>${g.local}</b> <span class="badge-cartao">${g.cartao}</span><br><small>${g.pessoa} ${g.parcelas>1?`• ${g.parcelas}x`:''}</small></span>
+                    <div>
+                        <b>R$ ${g.valor.toFixed(2)}</b>
+                        <button class="btn-acao btn-edit" onclick="prepararEditGasto(${i})">✎</button>
+                        <button class="btn-acao btn-del" onclick="delGasto(${i})">✕</button>
+                    </div>
                 </div>`).reverse().join('');
 
             document.getElementById('lista-fixas').innerHTML = (user.fixas || []).map((f, i) => `
                 <div class="gasto-item">
-                    <span>${f.nome} <br><small style="opacity:0.5">Vencimento: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString()}</small></span>
-                    <div><b>R$ ${f.valor.toFixed(2)}</b> <button onclick="delFixa(${i})" style="color:var(--danger); background:none; border:none; margin-left:10px; cursor:pointer">✕</button></div>
+                    <span>${f.nome}<br><small>Venc: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString()}</small></span>
+                    <div>
+                        <b>R$ ${f.valor.toFixed(2)}</b>
+                        <button class="btn-acao btn-edit" onclick="prepararEditFixa(${i})">✎</button>
+                        <button class="btn-acao btn-del" onclick="delFixa(${i})">✕</button>
+                    </div>
                 </div>`).join('');
+
+            let totalP = 0;
+            document.getElementById('lista-poupanca').innerHTML = (user.poupanca_extrato || []).map((m, i) => {
+                if(m.tipo === 'entrada') totalP += m.valor; else totalP -= m.valor;
+                return `
+                <div class="gasto-item">
+                    <span>${m.tipo==='entrada'?'📥':'📤'} ${new Date(m.data).toLocaleDateString()}</span>
+                    <div>
+                        <b>R$ ${m.valor.toFixed(2)}</b>
+                        <button class="btn-acao btn-edit" onclick="prepararEditPoupanca(${i})">✎</button>
+                        <button class="btn-acao btn-del" onclick="delPoupanca(${i})">✕</button>
+                    </div>
+                </div>`;
+            }).reverse().join('');
+            document.getElementById('p-total').innerText = `R$ ${totalP.toFixed(2)}`;
         }
     </script>
 </body>
