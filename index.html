@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS FINANCE - Estável</title>
+    <title>NEXUS FINANCE - Ultra Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
@@ -12,42 +12,36 @@
     <style>
         :root {
             --bg: #020617; --card-bg: rgba(15, 23, 42, 0.95); --border: rgba(255, 255, 255, 0.08);
-            --primary: #6366f1; --success: #10b981; --danger: #f43f5e; --text: #f1f5f9;
+            --primary: #6366f1; --success: #10b981; --danger: #f43f5e; --warning: #f59e0b; --text: #f1f5f9;
         }
 
-        * { box-sizing: border-box; font-size: 13px; }
+        * { box-sizing: border-box; font-size: 12.5px; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; margin: 0; overflow: hidden; }
 
-        /* Navegação */
-        .nav-tabs { display: flex; justify-content: center; gap: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border); }
-        .tab-btn { background: none; border: none; color: var(--text); opacity: 0.5; cursor: pointer; font-weight: 700; transition: 0.3s; padding: 5px 15px; border-radius: 8px; }
+        .nav-tabs { display: flex; justify-content: center; gap: 15px; padding: 12px; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--border); }
+        .tab-btn { background: none; border: none; color: var(--text); opacity: 0.5; cursor: pointer; font-weight: 700; padding: 6px 12px; border-radius: 8px; }
         .tab-btn.active { opacity: 1; color: var(--primary); background: rgba(99, 102, 241, 0.1); }
 
-        .view-container { padding: 20px; height: calc(100vh - 65px); overflow-y: auto; }
+        .view-container { padding: 15px; height: calc(100vh - 60px); overflow-y: auto; }
         .view { display: none; height: 100%; }
         .view.active { display: block; }
 
-        /* Cards e Layout */
-        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 20px; margin-bottom: 15px; }
-        .grid-home { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: var(--card-bg); border-radius: 18px; border: 1px solid var(--border); padding: 18px; margin-bottom: 12px; }
+        .grid-layout { display: grid; grid-template-columns: 280px 1fr; gap: 15px; height: 100%; }
         
-        .big-stat { text-align: center; padding: 30px; }
-        .big-stat h2 { font-size: 11px; opacity: 0.6; margin-bottom: 5px; }
-        .big-stat p { font-size: 36px; font-weight: 800; margin: 0; }
+        .big-stat { text-align: center; padding: 25px; }
+        .big-stat p { font-size: 32px; font-weight: 800; margin: 5px 0 0 0; }
 
-        input, select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: white; margin-bottom: 10px; }
-        .botao { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
+        .alert-box { background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); color: var(--warning); padding: 12px; border-radius: 12px; margin-bottom: 15px; }
 
-        /* Dashboard Ajustado */
-        .dashboard-layout { display: grid; grid-template-columns: 280px 1fr; gap: 15px; height: 100%; }
-        .charts-wrapper { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-            gap: 10px; margin-bottom: 15px; max-height: 200px; 
-        }
-        .chart-container { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 10px; border: 1px solid var(--border); height: 180px; }
+        input, select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: white; margin-bottom: 8px; }
+        .botao { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; width: 100%; }
+
+        .charts-wrapper { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 5px; }
+        .chart-container { min-width: 160px; flex: 1; background: rgba(255,255,255,0.02); border-radius: 12px; padding: 8px; border: 1px solid var(--border); height: 160px; text-align: center; }
         
-        .history-list { overflow-y: auto; height: calc(100% - 215px); }
-        .gasto-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border); }
+        .history-list { overflow-y: auto; height: calc(100% - 185px); }
+        .gasto-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 6px; border: 1px solid var(--border); }
         
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
     </style>
@@ -55,20 +49,11 @@
 <body>
 
     <div id="tela-auth" class="auth-overlay">
-        <div class="card" style="width: 320px;">
-            <h2 style="text-align: center; margin-bottom: 20px;">NEXUS FINANCE</h2>
-            <div id="auth-box">
-                <input type="text" id="usuario" placeholder="Usuário">
-                <input type="password" id="senha" placeholder="Senha">
-                <button class="botao" onclick="fazerLogin()">Entrar</button>
-                <p onclick="document.getElementById('auth-box').style.display='none'; document.getElementById('reg-box').style.display='block'" style="text-align:center; cursor:pointer; font-size:11px; margin-top:15px; opacity:0.6">Criar nova conta</p>
-            </div>
-            <div id="reg-box" style="display:none">
-                <input type="text" id="cad-user" placeholder="Novo Usuário">
-                <input type="password" id="cad-senha" placeholder="Senha">
-                <button class="botao" style="background:var(--success)" onclick="registrarUsuario()">Cadastrar</button>
-                <p onclick="document.getElementById('auth-box').style.display='block'; document.getElementById('reg-box').style.display='none'" style="text-align:center; cursor:pointer; font-size:11px; margin-top:15px; opacity:0.6">Voltar</p>
-            </div>
+        <div class="card" style="width: 300px;">
+            <h2 style="text-align: center;">NEXUS FINANCE</h2>
+            <input type="text" id="usuario" placeholder="Usuário">
+            <input type="password" id="senha" placeholder="Senha">
+            <button class="botao" onclick="fazerLogin()">Entrar</button>
         </div>
     </div>
 
@@ -82,34 +67,43 @@
     <main class="view-container" id="main-app" style="display: none;">
         
         <div id="view-home" class="view active">
-            <div class="grid-home">
+            <div id="alertas-vencimento" class="alert-box" style="display:none">
+                <strong>⚠️ Contas Próximas ao Vencimento:</strong>
+                <ul id="lista-alertas" style="margin: 5px 0 0 0; font-size: 11px;"></ul>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="card big-stat">
-                    <h2>SALDO DO MÊS</h2>
+                    <span style="opacity: 0.6;">SALDO MENSAL</span>
                     <p id="h-saldo-total" style="color: var(--success);">R$ 0,00</p>
-                    <button onclick="editarSaldoMensal()" style="background:none; border:none; color:var(--primary); cursor:pointer; margin-top:10px">✎ Editar Saldo</button>
+                    <button onclick="editarSaldoMensal()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size: 10px;">✎ Editar Saldo</button>
                 </div>
                 <div class="card big-stat">
-                    <h2>SOBRANDO</h2>
+                    <span style="opacity: 0.6;">DISPONÍVEL</span>
                     <p id="h-sobra">R$ 0,00</p>
                 </div>
-            </div>
-            <div class="card">
-                <h3>Resumo de Contas Fixas</h3>
-                <p id="resumo-fixas" style="opacity: 0.6;">Carregando...</p>
             </div>
         </div>
 
         <div id="view-cartoes" class="view">
-            <div class="dashboard-layout">
+            <div class="grid-layout">
                 <aside class="card">
                     <h3>Novo Lançamento</h3>
-                    <input type="text" id="f-local" placeholder="Onde?">
-                    <input type="number" id="f-valor" placeholder="Valor R$">
+                    <input type="text" id="f-local" placeholder="Onde comprou?">
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <input type="number" id="f-valor" placeholder="R$ 0,00" style="margin:0">
+                        <input type="checkbox" id="check-parcela" onchange="document.getElementById('c-parc').style.display=this.checked?'block':'none'" style="width:15px; height:15px">
+                        <label style="font-size: 9px;">Parc.</label>
+                    </div>
+                    <div id="c-parc" style="display:none; margin-top:5px">
+                        <input type="number" id="f-qtd-parcelas" placeholder="Nº de Parcelas" value="1">
+                    </div>
+                    <input type="text" id="f-pessoa" placeholder="Quem comprou?">
                     <input type="date" id="f-data">
                     <select id="f-cartao-select"></select>
-                    <button class="botao" onclick="addGasto()">Lançar</button>
-                    <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:10px">
-                        <input type="text" id="novo-banco" placeholder="Novo Banco">
+                    <button class="botao" onclick="addGasto()">Salvar Gasto</button>
+                    
+                    <div style="margin-top:15px; border-top: 1px solid var(--border); padding-top:10px">
+                        <input type="text" id="novo-banco" placeholder="Nome do Banco">
                         <button class="botao" style="background:#334155" onclick="addBanco()">+ Adicionar Banco</button>
                     </div>
                 </aside>
@@ -122,14 +116,21 @@
         </div>
 
         <div id="view-fixas" class="view">
-            <div class="grid-home">
+            <div class="grid-layout">
                 <div class="card">
-                    <h3>Adicionar Fixa</h3>
-                    <input type="text" id="fixa-nome" placeholder="Nome (Ex: Aluguel)">
-                    <input type="number" id="fixa-valor" placeholder="Valor R$">
-                    <button class="botao" style="background:var(--success)" onclick="addContaFixa()">Salvar</button>
+                    <h3>Cadastrar Fixa</h3>
+                    <input type="text" id="fixa-nome" placeholder="Ex: Aluguel">
+                    <input type="number" id="fixa-valor" placeholder="R$ 0,00">
+                    <label style="font-size: 10px; opacity: 0.6;">Vencimento:</label>
+                    <input type="date" id="fixa-vencimento">
+                    <button class="botao" style="background:var(--success)" onclick="addContaFixa()">Salvar Conta</button>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 10px;">
+                        <h4 style="margin:0">Resumo das Fixas</h4>
+                        <p id="resumo-fixas" style="font-size: 18px; font-weight: 800; color: var(--danger); margin: 10px 0 0 0;">R$ 0,00</p>
+                    </div>
                 </div>
-                <div class="card">
+                <div class="card" style="overflow-y: auto;">
                     <h3>Lista de Contas Fixas</h3>
                     <div id="lista-fixas"></div>
                 </div>
@@ -152,18 +153,9 @@
 
         let userLogado = "", dados = {};
 
-        // Sincronização em tempo real COM carregamento inicial forçado
-        function iniciarSync() {
-            db.ref('/').on('value', snap => {
-                dados = snap.val() || {};
-                renderTudo();
-            });
-        }
-
         function fazerLogin() {
             const u = document.getElementById('usuario').value.toLowerCase().trim();
             const s = document.getElementById('senha').value;
-            // Busca os dados antes de validar para garantir que não venha vazio
             db.ref('/').once('value', snap => {
                 dados = snap.val() || {};
                 if (dados.usuarios && dados.usuarios[u] && dados.usuarios[u].senha === s) {
@@ -172,119 +164,120 @@
                     document.getElementById('nav-app').style.display = "flex";
                     document.getElementById('main-app').style.display = "block";
                     document.getElementById('f-data').valueAsDate = new Date();
-                    iniciarSync(); // Ativa o modo em tempo real após o login
-                } else { alert("Login incorreto!"); }
+                    db.ref('/').on('value', s => { dados = s.val(); renderTudo(); });
+                } else { alert("Login inválido."); }
             });
         }
 
-        function switchTab(tabId) {
+        function switchTab(t) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('view-' + tabId).classList.add('active');
+            document.getElementById('view-'+t).classList.add('active');
             event.currentTarget.classList.add('active');
-        }
-
-        function editarSaldoMensal() {
-            const atual = dados.usuarios[userLogado].saldoMensal || 0;
-            const novo = prompt("Novo Saldo Mensal:", atual);
-            if(novo !== null) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(novo));
         }
 
         function addGasto() {
             const l = document.getElementById('f-local').value, v = parseFloat(document.getElementById('f-valor').value);
-            const d = document.getElementById('f-data').value, c = document.getElementById('f-cartao-select').value;
-            if(!l || isNaN(v)) return;
-            let f = dados.usuarios[userLogado].financas || [];
-            f.push({ local: l, valor: v, data: d, cartao: c });
-            db.ref(`usuarios/${userLogado}/financas`).set(f);
-            document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = "";
-        }
+            const p = document.getElementById('f-pessoa').value || "Eu";
+            const par = document.getElementById('check-parcela').checked ? parseInt(document.getElementById('f-qtd-parcelas').value) : 1;
+            const c = document.getElementById('f-cartao-select').value;
+            const d = document.getElementById('f-data').value;
 
-        function editarGasto(idx) {
-            let f = dados.usuarios[userLogado].financas;
-            const novo = prompt("Novo valor para " + f[idx].local, f[idx].valor);
-            if(novo !== null) { f[idx].valor = parseFloat(novo); db.ref(`usuarios/${userLogado}/financas`).set(f); }
+            if(!l || isNaN(v)) return;
+            let list = dados.usuarios[userLogado].financas || [];
+            list.push({ local: l, valor: v, pessoa: p, parcelas: par, cartao: c, data: d });
+            db.ref(`usuarios/${userLogado}/financas`).set(list);
+            document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = "";
         }
 
         function addContaFixa() {
             const n = document.getElementById('fixa-nome').value, v = parseFloat(document.getElementById('fixa-valor').value);
-            if(!n || isNaN(v)) return;
-            let fx = dados.usuarios[userLogado].fixas || [];
-            fx.push({ nome: n, valor: v });
-            db.ref(`usuarios/${userLogado}/fixas`).set(fx);
+            const venc = document.getElementById('fixa-vencimento').value;
+            if(!n || isNaN(v) || !venc) return;
+            let list = dados.usuarios[userLogado].fixas || [];
+            list.push({ nome: n, valor: v, vencimento: venc });
+            db.ref(`usuarios/${userLogado}/fixas`).set(list);
             document.getElementById('fixa-nome').value = ""; document.getElementById('fixa-valor').value = "";
         }
 
         function addBanco() {
             const n = document.getElementById('novo-banco').value.trim();
             if(!n) return;
-            let c = dados.usuarios[userLogado].cartoes || [];
-            c.push(n);
-            db.ref(`usuarios/${userLogado}/cartoes`).set(c);
+            let b = dados.usuarios[userLogado].cartoes || [];
+            b.push(n); db.ref(`usuarios/${userLogado}/cartoes`).set(b);
             document.getElementById('novo-banco').value = "";
         }
 
-        function registrarUsuario() {
-            const u = document.getElementById('cad-user').value.toLowerCase().trim();
-            const s = document.getElementById('cad-senha').value;
-            if(!u || !s) return;
-            db.ref('usuarios/' + u).set({ senha: s, saldoMensal: 0, cartoes: ['Nubank'], financas: [], fixas: [] });
-            alert("Conta criada!"); location.reload();
-        }
+        function delGasto(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].financas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/financas`).set(f); } }
+        function delFixa(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].fixas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/fixas`).set(f); } }
+        function editarSaldoMensal() { const n = prompt("Novo saldo:", dados.usuarios[userLogado].saldoMensal); if(n) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(n)); }
 
         function renderTudo() {
             const user = dados.usuarios[userLogado];
             if(!user) return;
-            const saldoM = user.saldoMensal || 0;
-            let totalG = 0, totalF = 0;
+            
+            let tG = 0, tF = 0, alertas = "";
+            const hoje = new Date();
 
-            (user.financas || []).forEach(g => totalG += g.valor);
-            (user.fixas || []).forEach(f => totalF += f.valor);
+            (user.financas || []).forEach(g => tG += g.valor);
+            (user.fixas || []).forEach(f => {
+                tF += f.valor;
+                const dv = new Date(f.vencimento + "T12:00:00");
+                const diff = (dv - hoje) / (1000 * 60 * 60 * 24);
+                if(diff <= 10 && diff >= -1) alertas += `<li>${f.nome} vence dia ${dv.toLocaleDateString('pt-BR')}</li>`;
+            });
 
-            document.getElementById('h-saldo-total').innerText = `R$ ${saldoM.toFixed(2)}`;
-            const sobra = saldoM - totalG - totalF;
+            // HOME & RESUMO
+            document.getElementById('alertas-vencimento').style.display = alertas ? "block" : "none";
+            document.getElementById('lista-alertas').innerHTML = alertas;
+            document.getElementById('h-saldo-total').innerText = `R$ ${(user.saldoMensal || 0).toFixed(2)}`;
+            document.getElementById('resumo-fixas').innerText = `R$ ${tF.toFixed(2)}`;
+            
+            const sobra = (user.saldoMensal || 0) - tG - tF;
             const sEl = document.getElementById('h-sobra');
             sEl.innerText = `R$ ${sobra.toFixed(2)}`;
             sEl.style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
-            document.getElementById('resumo-fixas').innerText = `Total em contas fixas: R$ ${totalF.toFixed(2)}`;
 
-            const containerG = document.getElementById('container-graficos');
-            containerG.innerHTML = "";
-            const bancos = user.cartoes || [];
+            // CARTÕES & GRÁFICOS
+            const cG = document.getElementById('container-graficos'); cG.innerHTML = "";
+            const bancos = user.cartoes || ['Nubank'];
             document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
 
             bancos.forEach(b => {
                 const gastosB = (user.financas || []).filter(g => g.cartao === b);
                 if(gastosB.length === 0) return;
-                const resumo = {}; gastosB.forEach(g => resumo[g.local] = (resumo[g.local] || 0) + g.valor);
+                const res = {}; gastosB.forEach(g => res[g.local] = (res[g.local] || 0) + g.valor);
                 
                 const div = document.createElement('div');
                 div.className = 'chart-container';
-                div.innerHTML = `<h5 style="margin:0 0 5px 0; font-size:10px">${b}</h5><canvas id="c-${b}"></canvas>`;
-                containerG.appendChild(div);
+                div.innerHTML = `<h5 style="margin:0; font-size:10px">${b}</h5><canvas id="c-${b}"></canvas>`;
+                cG.appendChild(div);
 
                 new Chart(document.getElementById(`c-${b}`), {
                     type: 'doughnut',
-                    data: { labels: Object.keys(resumo), datasets: [{ data: Object.values(resumo), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'], borderWidth: 0 }] },
+                    data: { labels: Object.keys(res), datasets: [{ data: Object.values(res), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'], borderWidth: 0 }] },
                     options: { plugins: { legend: { display: false } }, cutout: '70%', maintainAspectRatio: false }
                 });
             });
 
+            // HISTORICO GERAL
             document.getElementById('lista-financas').innerHTML = (user.financas || []).map((g, i) => `
                 <div class="gasto-item">
-                    <span><b>${g.cartao}</b> | ${g.local}</span>
+                    <span><b>${g.cartao}</b> | ${g.local} <small style="opacity:0.5">(${g.pessoa})</small> ${g.parcelas > 1 ? `<br><small style="color:var(--warning)">Parcelado 1/${g.parcelas}</small>` : ''}</span>
                     <div>
                         <b style="color:var(--primary)">R$ ${g.valor.toFixed(2)}</b>
-                        <button onclick="editarGasto(${i})" style="background:none; border:none; color:var(--text); cursor:pointer; margin-left:10px">✎</button>
-                        <button onclick="if(confirm('Excluir?')){ let f=user.financas; f.splice(${i},1); db.ref('usuarios/${userLogado}/financas').set(f); }" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:5px">✕</button>
+                        <button onclick="delGasto(${i})" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:8px">✕</button>
                     </div>
                 </div>`).reverse().join('');
 
+            // LISTA FIXAS
             document.getElementById('lista-fixas').innerHTML = (user.fixas || []).map((f, i) => `
                 <div class="gasto-item">
-                    <span>${f.nome}</span>
-                    <b style="color:var(--danger)">R$ ${f.valor.toFixed(2)}</b>
-                    <button onclick="if(confirm('Excluir?')){ let fx=user.fixas; fx.splice(${i},1); db.ref('usuarios/${userLogado}/fixas').set(fx); }" style="background:none; border:none; color:var(--danger); cursor:pointer">✕</button>
+                    <span>${f.nome} <br><small style="opacity:0.5">Vence: ${new Date(f.vencimento + "T12:00:00").toLocaleDateString('pt-BR')}</small></span>
+                    <div>
+                        <b style="color:var(--danger)">R$ ${f.valor.toFixed(2)}</b>
+                        <button onclick="delFixa(${i})" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:8px">✕</button>
+                    </div>
                 </div>`).join('');
         }
     </script>
