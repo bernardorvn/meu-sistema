@@ -16,57 +16,51 @@
             --warning: #f59e0b; --text-main: #0f172a; --text-sub: #64748b; --savings: #db2777;
         }
 
-        * { box-sizing: border-box; font-size: 14px; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; min-height: 100vh; }
+        * { box-sizing: border-box; font-size: 14px; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; }
 
-        .nav-tabs { 
-            display: flex; gap: 5px; padding: 10px; background: var(--card-bg); 
-            border-bottom: 1px solid var(--border); overflow-x: auto; position: sticky; top: 0; z-index: 50;
-        }
-        .tab-btn { 
-            background: none; border: none; color: var(--text-sub); cursor: pointer; 
-            font-weight: 600; padding: 10px 18px; border-radius: 12px; white-space: nowrap; transition: 0.2s;
-        }
+        .welcome-box { padding: 10px 5px; margin-bottom: 5px; }
+        .welcome-box h2 { font-size: 20px; font-weight: 500; color: var(--text-sub); }
+        .welcome-box span { color: var(--text-main); font-weight: 800; }
+
+        .nav-tabs { display: flex; gap: 4px; padding: 10px; background: var(--card-bg); border-bottom: 1px solid var(--border); overflow-x: auto; position: sticky; top: 0; z-index: 50; }
+        .tab-btn { background: none; border: none; color: var(--text-sub); cursor: pointer; font-weight: 600; padding: 10px 14px; border-radius: 10px; white-space: nowrap; }
         .tab-btn.active { color: var(--primary); background: #eef2ff; }
 
-        .view-container { padding: 15px; max-width: 1200px; margin: 0 auto; }
+        .view-container { padding: 15px; padding-bottom: 30px; max-width: 1200px; margin: 0 auto; }
         .view { display: none; }
         .view.active { display: block; }
 
-        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        
-        .grid-layout { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border); padding: 18px; margin-bottom: 12px; }
+        .grid-layout { display: grid; grid-template-columns: 1fr; gap: 12px; }
         @media (min-width: 900px) { .grid-layout { grid-template-columns: 320px 1fr; } }
         
-        .charts-wrapper { display: flex; flex-wrap: nowrap; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
+        .charts-wrapper { display: flex; flex-wrap: nowrap; gap: 12px; overflow-x: auto; padding-bottom: 10px; }
         .chart-item { min-width: 280px; background: var(--card-bg); border-radius: 18px; padding: 15px; border: 1px solid var(--border); position: relative; }
-        .chart-item h5 { margin: 0 0 10px 0; color: var(--text-main); font-weight: 800; text-align: center; text-transform: uppercase; font-size: 11px; }
         .canvas-container { height: 180px; position: relative; }
 
-        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border); background: #fff; color: var(--text-main); margin-bottom: 12px; font-size: 16px; transition: 0.2s; }
-        input:focus { border-color: var(--primary); outline: none; }
+        .resumo-pessoas { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; }
+        .pessoa-tag { background: #f1f5f9; padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border); white-space: nowrap; }
+
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1.5px solid var(--border); margin-bottom: 10px; font-size: 16px; }
+        .botao { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; }
         
-        .botao { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; }
-        
-        .gasto-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 16px; background: var(--card-bg); border-radius: 16px; 
-            margin-bottom: 10px; border: 1px solid var(--border); 
-        }
-        .badge-cartao { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: #eef2ff; color: var(--primary); font-weight: 700; margin-left: 8px; border: 1px solid #c7d2fe; }
-        
-        .btn-acao { background: none; border: none; cursor: pointer; font-size: 18px; margin-left: 10px; transition: 0.2s; }
+        .gasto-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card-bg); border-radius: 16px; margin-bottom: 8px; border: 1px solid var(--border); }
+        .btn-acao { background: none; border: none; cursor: pointer; font-size: 18px; margin-left: 10px; }
         .btn-edit { color: var(--primary); }
         .btn-del { color: var(--danger); }
-
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        
+        .parcela-box { background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px dashed var(--border); margin-bottom: 10px; display: none; }
+        .check-parcela { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; font-weight: 600; color: var(--text-sub); }
+        .check-parcela input { width: auto; margin: 0; }
     </style>
 </head>
 <body>
 
     <div id="tela-auth" class="auth-overlay">
         <div class="card" style="width: 100%; max-width: 360px; text-align: center;">
-            <h2 style="font-weight: 800; color: var(--primary);">NEXUS FINANCE</h2>
+            <h2 style="font-weight: 800; color: var(--primary); margin-bottom: 20px;">NEXUS FINANCE</h2>
             <div id="box-login">
                 <input type="text" id="usuario" placeholder="Usuário">
                 <input type="password" id="senha" placeholder="Senha">
@@ -74,10 +68,10 @@
                 <p onclick="toggleAuth(true)" style="margin-top:20px; cursor:pointer; color: var(--text-sub);">Cadastre-se</p>
             </div>
             <div id="box-cad" style="display:none">
-                <input type="text" id="cad-user" placeholder="Usuário">
+                <input type="text" id="cad-user" placeholder="Novo Usuário">
                 <input type="password" id="cad-pass" placeholder="Senha">
-                <button class="botao" style="background:var(--success)" onclick="registrar()">Criar</button>
-                <p onclick="toggleAuth(false)" style="margin-top:20px; cursor:pointer;">Voltar</p>
+                <button class="botao" style="background:var(--success)" onclick="registrar()">Criar Conta</button>
+                <p onclick="toggleAuth(false)" style="margin-top:20px; cursor:pointer; color: var(--text-sub);">Voltar ao login</p>
             </div>
         </div>
     </div>
@@ -93,19 +87,22 @@
     <main class="view-container" id="main-app" style="display: none;">
         
         <div id="view-home" class="view active">
-            <div id="alertas-vencimento" class="card" style="display:none; border-left: 5px solid var(--warning); background: #fffbeb;">
-                <strong style="color: #92400e;">⚠️ Atenção (Próximos 10 dias):</strong>
-                <ul id="lista-alertas" style="margin: 8px 0 0 0; padding-left: 20px; color: #b45309; line-height: 1.6;"></ul>
+            <div class="welcome-box">
+                <h2 id="msg-boas-vindas">Olá, <span>Visitante</span></h2>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+            <div id="alertas-vencimento" class="card" style="display:none; border-left: 5px solid var(--warning); background: #fffbeb;">
+                <strong style="color: #92400e;">⚠️ Contas vencendo em breve:</strong>
+                <ul id="lista-alertas" style="margin-top: 10px; color: #b45309; padding-left: 20px;"></ul>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
                 <div class="card" style="text-align:center;">
                     <span style="color: var(--text-sub); font-weight: 700; font-size: 11px;">ORÇAMENTO MENSAL</span>
-                    <p id="h-saldo-total" style="font-size:36px; font-weight:800; margin:10px 0">R$ 0,00</p>
-                    <button class="botao" onclick="editarSaldoMensal()" style="padding: 8px; font-size: 12px; background: #f1f5f9; color: var(--primary); box-shadow: none;">✎ Editar Valor</button>
+                    <p id="h-saldo-total" style="font-size:32px; font-weight:800; margin:10px 0">R$ 0,00</p>
+                    <button class="botao" onclick="editarSaldoMensal()" style="padding: 8px; font-size: 12px; background: #f1f5f9; color: var(--primary);">✎ Editar</button>
                 </div>
                 <div class="card" style="text-align:center;">
-                    <span style="color: var(--text-sub); font-weight: 700; font-size: 11px;">VALOR DISPONÍVEL</span>
-                    <p id="h-sobra" style="font-size:36px; font-weight:800; margin:10px 0">R$ 0,00</p>
+                    <span style="color: var(--text-sub); font-weight: 700; font-size: 11px;">DISPONÍVEL (SOBRA)</span>
+                    <p id="h-sobra" style="font-size:32px; font-weight:800; margin:10px 0">R$ 0,00</p>
                 </div>
             </div>
         </div>
@@ -116,21 +113,30 @@
                     <div class="card">
                         <h3 id="titulo-form-gasto">Novo Gasto</h3>
                         <input type="hidden" id="edit-index-gasto" value="-1">
-                        <input type="text" id="f-local" placeholder="Onde?">
-                        <input type="number" id="f-valor" placeholder="Valor">
-                        <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; background:#f8fafc; padding:10px; border-radius:12px">
-                            <input type="checkbox" id="check-parcela" onchange="document.getElementById('c-parc').style.display=this.checked?'block':'none'">
-                            <label>Parcelar</label>
+                        <input type="text" id="f-local" placeholder="Estabelecimento">
+                        <input type="number" id="f-valor" placeholder="Valor Total">
+                        
+                        <label class="check-parcela">
+                            <input type="checkbox" id="f-is-parcelado" onchange="toggleParcelas()"> Compra Parcelada?
+                        </label>
+
+                        <div class="parcela-box" id="box-parcelas">
+                            <label style="font-size: 11px; font-weight: 700; color: var(--text-sub);">NÚMERO DE PARCELAS</label>
+                            <input type="number" id="f-parcelas" value="1" min="1">
                         </div>
-                        <div id="c-parc" style="display:none"><input type="number" id="f-qtd-parcelas" placeholder="Vezes" value="1"></div>
-                        <input type="text" id="f-pessoa" placeholder="Quem?">
+
+                        <div style="display:flex; gap: 5px;">
+                            <select id="f-cartao-select"></select>
+                            <button class="botao" style="width: 50px; padding: 10px;" onclick="novoBanco()">+</button>
+                        </div>
+                        <input type="text" id="f-pessoa" placeholder="Quem comprou?">
                         <input type="date" id="f-data">
-                        <select id="f-cartao-select"></select>
-                        <button class="botao" id="btn-salvar-gasto" onclick="addGasto()">Salvar Compra</button>
+                        <button class="botao" onclick="addGasto()">Salvar Compra</button>
                     </div>
                 </aside>
                 <section>
                     <div class="charts-wrapper" id="container-graficos"></div>
+                    <div class="resumo-pessoas" id="resumo-por-pessoa"></div>
                     <div id="lista-financas"></div>
                 </section>
             </div>
@@ -138,16 +144,14 @@
 
         <div id="view-fixas" class="view">
             <div class="grid-layout">
-                <aside>
-                    <div class="card">
-                        <h3 id="titulo-form-fixa">Conta Fixa</h3>
-                        <input type="hidden" id="edit-index-fixa" value="-1">
-                        <input type="text" id="fixa-nome" placeholder="Nome">
-                        <input type="number" id="fixa-valor" placeholder="Valor">
-                        <input type="date" id="fixa-vencimento">
-                        <button class="botao" id="btn-salvar-fixa" style="background:var(--success)" onclick="addContaFixa()">Salvar Fixa</button>
-                    </div>
-                </aside>
+                <aside><div class="card">
+                    <h3 id="titulo-form-fixa">Conta Fixa</h3>
+                    <input type="hidden" id="edit-index-fixa" value="-1">
+                    <input type="text" id="fixa-nome" placeholder="Nome">
+                    <input type="number" id="fixa-valor" placeholder="Valor">
+                    <input type="date" id="fixa-vencimento">
+                    <button class="botao" onclick="addContaFixa()">Salvar Fixa</button>
+                </div></aside>
                 <section id="lista-fixas"></section>
             </div>
         </div>
@@ -157,15 +161,13 @@
                 <div class="card" style="text-align:center; border-top: 5px solid var(--savings);">
                     <span style="color:var(--savings); font-weight:800">RESERVA TOTAL</span>
                     <p id="p-total" style="font-size:36px; font-weight:800; margin:10px 0">R$ 0,00</p>
+                    <button class="botao" style="background:#f1f5f9; color:var(--danger); padding: 5px; font-size: 11px; width: auto;" onclick="zerarPoupanca()">♻ Zerar Poupança</button>
                 </div>
                 <div class="card">
-                    <h3 id="titulo-poupanca">Movimentar Reserva</h3>
-                    <input type="hidden" id="edit-index-poupanca" value="-1">
                     <input type="number" id="p-valor" placeholder="Valor">
-                    <div style="display:flex; gap:10px; flex-wrap: wrap;">
-                        <button class="botao" style="background:var(--success); flex: 1;" onclick="movimentarPoupanca('entrada')">Guardar</button>
-                        <button class="botao" style="background:var(--danger); flex: 1;" onclick="movimentarPoupanca('saida')">Retirar</button>
-                        <button class="botao" style="background:#64748b; width: 100%; margin-top: 5px;" onclick="zerarPoupanca()">♻ Zerar Reserva</button>
+                    <div style="display:flex; gap:10px;">
+                        <button class="botao" style="background:var(--success)" onclick="movimentarPoupanca('entrada')">Guardar</button>
+                        <button class="botao" style="background:var(--danger)" onclick="movimentarPoupanca('saida')">Retirar</button>
                     </div>
                 </div>
                 <div id="lista-poupanca"></div>
@@ -192,6 +194,11 @@
             document.getElementById('box-cad').style.display = isCad ? 'block' : 'none';
         }
 
+        function toggleParcelas() {
+            const display = document.getElementById('f-is-parcelado').checked ? 'block' : 'none';
+            document.getElementById('box-parcelas').style.display = display;
+        }
+
         function fazerLogin() {
             const u = document.getElementById('usuario').value.toLowerCase().trim();
             const s = document.getElementById('senha').value;
@@ -207,6 +214,12 @@
             });
         }
 
+        function registrar() {
+            const u = document.getElementById('cad-user').value.toLowerCase().trim();
+            const s = document.getElementById('cad-pass').value;
+            if(u && s) db.ref(`usuarios/${u}`).set({ senha: s, saldoMensal: 0, cartoes: ["Nubank", "Santander", "Itau"] }).then(() => toggleAuth(false));
+        }
+
         function switchTab(t) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -214,117 +227,111 @@
             event.currentTarget.classList.add('active');
         }
 
+        function editarSaldoMensal() { 
+            const n = prompt("Novo orçamento:", dados.usuarios[userLogado].saldoMensal); 
+            if(n) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(n)); 
+        }
+
+        function novoBanco() {
+            const b = prompt("Nome do novo banco/cartão:");
+            if(b) {
+                let bancos = dados.usuarios[userLogado].cartoes || [];
+                bancos.push(b);
+                db.ref(`usuarios/${userLogado}/cartoes`).set(bancos);
+            }
+        }
+
         function addGasto() {
-            const index = parseInt(document.getElementById('edit-index-gasto').value);
-            const v = parseFloat(document.getElementById('f-valor').value);
-            const par = document.getElementById('check-parcela').checked ? parseInt(document.getElementById('f-qtd-parcelas').value) : 1;
-            const l = document.getElementById('f-local').value;
-            const p = document.getElementById('f-pessoa').value || "Eu";
-            const c = document.getElementById('f-cartao-select').value;
-            const d = document.getElementById('f-data').value;
-            if(!l || isNaN(v)) return;
+            const idx = parseInt(document.getElementById('edit-index-gasto').value);
+            const total = parseFloat(document.getElementById('f-valor').value);
+            const isParcelado = document.getElementById('f-is-parcelado').checked;
+            const numParc = isParcelado ? (parseInt(document.getElementById('f-parcelas').value) || 1) : 1;
             let list = dados.usuarios[userLogado].financas || [];
-            const novoItem = { local: l, valor: v/par, pessoa: p, parcelas: par, cartao: c, data: d };
-            if(index === -1) list.push(novoItem); else list[index] = novoItem;
-            db.ref(`usuarios/${userLogado}/financas`).set(list);
-            limparFormGasto();
-        }
-
-        function prepararEditGasto(i) {
-            const g = dados.usuarios[userLogado].financas[i];
-            document.getElementById('f-local').value = g.local;
-            document.getElementById('f-valor').value = g.valor * g.parcelas;
-            document.getElementById('f-pessoa').value = g.pessoa;
-            document.getElementById('f-data').value = g.data;
-            document.getElementById('f-cartao-select').value = g.cartao;
-            document.getElementById('edit-index-gasto').value = i;
-            document.getElementById('titulo-form-gasto').innerText = "Editar Gasto";
-            document.getElementById('btn-salvar-gasto').innerText = "Atualizar Gasto";
-            window.scrollTo(0,0);
-        }
-
-        function limparFormGasto() {
-            document.getElementById('edit-index-gasto').value = "-1";
-            document.getElementById('titulo-form-gasto').innerText = "Novo Gasto";
-            document.getElementById('btn-salvar-gasto').innerText = "Salvar Compra";
-            document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = "";
+            
+            const obj = { 
+                local: document.getElementById('f-local').value, 
+                valor: total / numParc, 
+                valorTotal: total,
+                parcelas: numParc,
+                pessoa: document.getElementById('f-pessoa').value || "Eu", 
+                cartao: document.getElementById('f-cartao-select').value, 
+                data: document.getElementById('f-data').value 
+            };
+            
+            if(idx === -1) list.push(obj); else list[idx] = obj;
+            db.ref(`usuarios/${userLogado}/financas`).set(list).then(() => {
+                document.getElementById('edit-index-gasto').value = "-1";
+                document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = ""; 
+                document.getElementById('f-parcelas').value = "1";
+                document.getElementById('f-is-parcelado').checked = false;
+                toggleParcelas();
+            });
         }
 
         function addContaFixa() {
-            const index = parseInt(document.getElementById('edit-index-fixa').value);
-            const n = document.getElementById('fixa-nome').value, v = parseFloat(document.getElementById('fixa-valor').value);
-            const venc = document.getElementById('fixa-vencimento').value;
-            if(!n || isNaN(v)) return;
+            const idx = parseInt(document.getElementById('edit-index-fixa').value);
             let list = dados.usuarios[userLogado].fixas || [];
-            const novoItem = { nome: n, valor: v, vencimento: venc };
-            if(index === -1) list.push(novoItem); else list[index] = novoItem;
-            db.ref(`usuarios/${userLogado}/fixas`).set(list);
-            limparFormFixa();
+            const obj = { 
+                nome: document.getElementById('fixa-nome').value, 
+                valor: parseFloat(document.getElementById('fixa-valor').value), 
+                vencimento: document.getElementById('fixa-vencimento').value 
+            };
+            if(idx === -1) list.push(obj); else list[idx] = obj;
+            db.ref(`usuarios/${userLogado}/fixas`).set(list).then(() => {
+                document.getElementById('edit-index-fixa').value = "-1";
+                document.getElementById('fixa-nome').value = ""; document.getElementById('fixa-valor').value = "";
+            });
         }
 
-        function prepararEditFixa(i) {
-            const f = dados.usuarios[userLogado].fixas[i];
-            document.getElementById('fixa-nome').value = f.nome;
-            document.getElementById('fixa-valor').value = f.valor;
-            document.getElementById('fixa-vencimento').value = f.vencimento;
-            document.getElementById('edit-index-fixa').value = i;
-            document.getElementById('titulo-form-fixa').innerText = "Editar Fixa";
-            window.scrollTo(0,0);
-        }
-
-        function limparFormFixa() {
-            document.getElementById('edit-index-fixa').value = "-1";
-            document.getElementById('titulo-form-fixa').innerText = "Conta Fixa";
-            document.getElementById('fixa-nome').value = ""; document.getElementById('fixa-valor').value = "";
-        }
-
-        // LÓGICA POUPANÇA ATUALIZADA
         function movimentarPoupanca(tipo) {
             const v = parseFloat(document.getElementById('p-valor').value);
-            const index = parseInt(document.getElementById('edit-index-poupanca').value);
             if(isNaN(v)) return;
             let list = dados.usuarios[userLogado].poupanca_extrato || [];
-            const novoItem = { tipo: tipo, valor: v, data: new Date().toISOString() };
-            
-            if(index === -1) list.push(novoItem); else list[index] = novoItem;
-            
+            list.push({ tipo, valor: v, data: new Date().toISOString() });
             db.ref(`usuarios/${userLogado}/poupanca_extrato`).set(list);
             document.getElementById('p-valor').value = "";
-            document.getElementById('edit-index-poupanca').value = "-1";
-            document.getElementById('titulo-poupanca').innerText = "Movimentar Reserva";
         }
 
-        function prepararEditPoupanca(i) {
-            const m = dados.usuarios[userLogado].poupanca_extrato[i];
-            document.getElementById('p-valor').value = m.valor;
-            document.getElementById('edit-index-poupanca').value = i;
-            document.getElementById('titulo-poupanca').innerText = "Editar Registro";
-            window.scrollTo(0,0);
-        }
-
-        function delPoupanca(i) {
-            if(confirm('Excluir este registro?')) {
+        function editarPoupanca(i) {
+            const v = prompt("Novo valor:", dados.usuarios[userLogado].poupanca_extrato[i].valor);
+            if(v) {
                 let list = [...dados.usuarios[userLogado].poupanca_extrato];
-                list.splice(i, 1);
+                list[i].valor = parseFloat(v);
                 db.ref(`usuarios/${userLogado}/poupanca_extrato`).set(list);
             }
         }
 
-        function zerarPoupanca() {
-            if(confirm('Deseja zerar todo o saldo da poupança? Isso apagará o histórico.')) {
-                db.ref(`usuarios/${userLogado}/poupanca_extrato`).set([]);
-            }
-        }
-
+        function zerarPoupanca() { if(confirm("Zerar poupança?")) db.ref(`usuarios/${userLogado}/poupanca_extrato`).set([]); }
         function delGasto(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].financas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/financas`).set(f); } }
         function delFixa(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].fixas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/fixas`).set(f); } }
-        function editarSaldoMensal() { const n = prompt("Novo orçamento:", dados.usuarios[userLogado].saldoMensal); if(n) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(n)); }
+        
+        function prepararEdicaoGasto(i) {
+            const g = dados.usuarios[userLogado].financas[i];
+            document.getElementById('edit-index-gasto').value = i;
+            document.getElementById('f-local').value = g.local;
+            document.getElementById('f-valor').value = g.valorTotal || g.valor;
+            document.getElementById('f-parcelas').value = g.parcelas || 1;
+            document.getElementById('f-is-parcelado').checked = (g.parcelas > 1);
+            toggleParcelas();
+            document.getElementById('f-pessoa').value = g.pessoa;
+            document.getElementById('f-data').value = g.data;
+            switchTab('cartoes');
+        }
+
+        function prepararEdicaoFixa(i) {
+            const f = dados.usuarios[userLogado].fixas[i];
+            document.getElementById('edit-index-fixa').value = i;
+            document.getElementById('fixa-nome').value = f.nome;
+            document.getElementById('fixa-valor').value = f.valor;
+            document.getElementById('fixa-vencimento').value = f.vencimento;
+            switchTab('fixas');
+        }
 
         Chart.register({
             id: 'centerText',
             afterDraw: (chart) => {
                 if (chart.options.plugins.centerText) {
-                    const { ctx, chartArea: { top, bottom, left, right, width, height } } = chart;
+                    const { ctx, chartArea: { top, left, width, height } } = chart;
                     ctx.save(); ctx.font = 'bold 16px sans-serif'; ctx.fillStyle = '#0f172a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText(chart.options.plugins.centerText.text, left + width / 2, top + height / 2); ctx.restore();
                 }
@@ -332,73 +339,72 @@
         });
 
         function renderTudo() {
-            const user = dados.usuarios[userLogado];
-            if(!user) return;
-            let tG = 0, tF = 0, alertas = "";
-            const hoje = new Date();
+            const u = dados.usuarios[userLogado];
+            if(!u) return;
+            const nomeFormatado = userLogado.charAt(0).toUpperCase() + userLogado.slice(1);
+            document.getElementById('msg-boas-vindas').innerHTML = `Olá, <span>${nomeFormatado}</span>`;
 
-            (user.financas || []).forEach(g => tG += g.valor);
-            (user.fixas || []).forEach(f => {
-                tF += f.valor;
+            let totalG = 0, gastosPorPessoa = {}, alertas = "";
+            const hoje = new Date();
+            (u.financas || []).forEach(g => {
+                totalG += g.valor;
+                gastosPorPessoa[g.pessoa] = (gastosPorPessoa[g.pessoa] || 0) + g.valor;
+            });
+            let totalF = 0;
+            (u.fixas || []).forEach(f => {
+                totalF += f.valor;
                 const dv = new Date(f.vencimento + "T12:00:00");
                 const diff = (dv - hoje) / (1000 * 60 * 60 * 24);
-                if(diff <= 10 && diff >= -1) alertas += `<li>${f.nome} - Vence dia ${dv.toLocaleDateString()}</li>`;
+                if(diff <= 10 && diff >= -1) alertas += `<li>${f.nome} (Vence ${dv.toLocaleDateString()})</li>`;
             });
 
-            document.getElementById('h-saldo-total').innerText = `R$ ${(user.saldoMensal || 0).toFixed(2)}`;
-            const sobra = (user.saldoMensal || 0) - tG - tF;
+            document.getElementById('h-saldo-total').innerText = `R$ ${(u.saldoMensal || 0).toFixed(2)}`;
+            const sobra = (u.saldoMensal || 0) - totalG - totalF;
             document.getElementById('h-sobra').innerText = `R$ ${sobra.toFixed(2)}`;
             document.getElementById('h-sobra').style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
             document.getElementById('alertas-vencimento').style.display = alertas ? "block" : "none";
             document.getElementById('lista-alertas').innerHTML = alertas;
 
-            const bancos = user.cartoes || ['Nubank'];
-            document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
             const cG = document.getElementById('container-graficos'); cG.innerHTML = "";
+            const bancos = u.cartoes || ['Nubank', 'Santander', 'Itau'];
+            document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
+            
             bancos.forEach(b => {
-                const gastosB = (user.financas || []).filter(g => g.cartao === b);
+                const gastosB = (u.financas || []).filter(g => g.cartao === b);
                 const totalB = gastosB.reduce((acc, curr) => acc + curr.valor, 0);
                 if(totalB > 0) {
                     const res = {}; gastosB.forEach(g => res[g.local] = (res[g.local] || 0) + g.valor);
                     const div = document.createElement('div'); div.className = 'chart-item';
                     div.innerHTML = `<h5>${b}</h5><div class="canvas-container"><canvas id="c-${b}"></canvas></div>`;
                     cG.appendChild(div);
-                    new Chart(document.getElementById(`c-${b}`), { type: 'doughnut', data: { labels: Object.keys(res), datasets: [{ data: Object.values(res), backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444'], borderWidth: 2 }] }, options: { plugins: { legend: { display: false }, centerText: { text: `R$ ${totalB.toFixed(0)}` } }, cutout: '80%', maintainAspectRatio: false } });
+                    new Chart(document.getElementById(`c-${b}`), { 
+                        type: 'doughnut', 
+                        data: { labels: Object.keys(res), datasets: [{ data: Object.values(res), backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#db2777'], borderWidth: 2 }] }, 
+                        options: { plugins: { legend: { display: false }, centerText: { text: `R$ ${totalB.toFixed(0)}` } }, cutout: '75%', maintainAspectRatio: false } 
+                    });
                 }
             });
 
-            document.getElementById('lista-financas').innerHTML = (user.financas || []).map((g, i) => `
+            document.getElementById('resumo-por-pessoa').innerHTML = Object.keys(gastosPorPessoa).map(p => `
+                <div class="pessoa-tag">${p}: <b>R$ ${gastosPorPessoa[p].toFixed(2)}</b></div>
+            `).join('');
+
+            document.getElementById('lista-financas').innerHTML = (u.financas || []).map((g, i) => `
                 <div class="gasto-item">
-                    <span><b>${g.local}</b> <span class="badge-cartao">${g.cartao}</span><br><small>${g.pessoa} ${g.parcelas>1?`• ${g.parcelas}x`:''}</small></span>
-                    <div>
-                        <b>R$ ${g.valor.toFixed(2)}</b>
-                        <button class="btn-acao btn-edit" onclick="prepararEditGasto(${i})">✎</button>
-                        <button class="btn-acao btn-del" onclick="delGasto(${i})">✕</button>
-                    </div>
+                    <span><b>${g.local}</b><br><small>${g.cartao} • ${g.pessoa} ${g.parcelas > 1 ? `(${g.parcelas}x)` : ''}</small></span>
+                    <div><b>R$ ${g.valor.toFixed(2)}</b><button class="btn-acao btn-edit" onclick="prepararEdicaoGasto(${i})">✎</button><button class="btn-acao btn-del" onclick="delGasto(${i})">✕</button></div>
                 </div>`).reverse().join('');
 
-            document.getElementById('lista-fixas').innerHTML = (user.fixas || []).map((f, i) => `
+            document.getElementById('lista-fixas').innerHTML = (u.fixas || []).map((f, i) => `
                 <div class="gasto-item">
-                    <span>${f.nome}<br><small>Venc: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString()}</small></span>
-                    <div>
-                        <b>R$ ${f.valor.toFixed(2)}</b>
-                        <button class="btn-acao btn-edit" onclick="prepararEditFixa(${i})">✎</button>
-                        <button class="btn-acao btn-del" onclick="delFixa(${i})">✕</button>
-                    </div>
+                    <span>${f.nome} <br><small>Venc: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString()}</small></span>
+                    <div><b>R$ ${f.valor.toFixed(2)}</b><button class="btn-acao btn-edit" onclick="prepararEdicaoFixa(${i})">✎</button><button class="btn-acao btn-del" onclick="delFixa(${i})">✕</button></div>
                 </div>`).join('');
 
             let totalP = 0;
-            document.getElementById('lista-poupanca').innerHTML = (user.poupanca_extrato || []).map((m, i) => {
-                if(m.tipo === 'entrada') totalP += m.valor; else totalP -= m.valor;
-                return `
-                <div class="gasto-item">
-                    <span>${m.tipo==='entrada'?'📥':'📤'} ${new Date(m.data).toLocaleDateString()}</span>
-                    <div>
-                        <b>R$ ${m.valor.toFixed(2)}</b>
-                        <button class="btn-acao btn-edit" onclick="prepararEditPoupanca(${i})">✎</button>
-                        <button class="btn-acao btn-del" onclick="delPoupanca(${i})">✕</button>
-                    </div>
-                </div>`;
+            document.getElementById('lista-poupanca').innerHTML = (u.poupanca_extrato || []).map((m, i) => {
+                totalP += (m.tipo === 'entrada' ? m.valor : -m.valor);
+                return `<div class="gasto-item"><span>${m.tipo==='entrada'?'📥':'📤'} ${new Date(m.data).toLocaleDateString()}</span><div><b style="color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}">R$ ${m.valor.toFixed(2)}</b><button class="btn-acao btn-edit" onclick="editarPoupanca(${i})">✎</button></div></div>`;
             }).reverse().join('');
             document.getElementById('p-total').innerText = `R$ ${totalP.toFixed(2)}`;
         }
