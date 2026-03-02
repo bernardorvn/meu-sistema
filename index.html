@@ -36,7 +36,6 @@
             position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
             background: var(--card-bg); z-index: 200; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 10px 0 30px rgba(0,0,0,0.1); padding: 25px 20px;
-            /* Melhora performance mobile */
             will-change: transform;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
@@ -56,20 +55,19 @@
             font-size: 15px;
         }
         .nav-item span.bullet { font-size: 18px; color: var(--border); transition: 0.2s; }
-        
         .nav-item.active { background: #eef2ff; color: var(--primary); }
         .nav-item.active span.bullet { color: var(--primary); }
         
-        /* CONTEÚDO OTIMIZADO */
+        /* CONTEÚDO */
         .view-container { 
             padding: 12px; max-width: 1200px; margin: 0 auto; 
-            transform: translateZ(0); /* Aceleração de hardware */
+            transform: translateZ(0);
         }
         .view { display: none; }
         .view.active { display: block; }
 
         canvas {
-            image-rendering: -webkit-optimize-contrast; /* Melhora nitidez */
+            image-rendering: -webkit-optimize-contrast;
             max-width: 100% !important;
         }
 
@@ -77,21 +75,57 @@
         .grid-layout { display: grid; grid-template-columns: 1fr; gap: 10px; }
         @media (min-width: 900px) { .grid-layout { grid-template-columns: 320px 1fr; } }
         
-        .charts-wrapper { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
-        .chart-item { min-width: 260px; background: var(--card-bg); border-radius: 14px; padding: 12px; border: 1px solid var(--border); scroll-snap-align: start; }
+        /* AJUSTE DOS GRÁFICOS: ROLAGEM HORIZONTAL */
+        .charts-wrapper { 
+            display: flex; 
+            gap: 12px; 
+            overflow-x: auto; 
+            padding-bottom: 12px; 
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; /* Firefox */
+        }
+        .charts-wrapper::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        
+        .chart-item { 
+            min-width: 240px; 
+            max-width: 240px;
+            background: var(--card-bg); 
+            border-radius: 14px; 
+            padding: 12px; 
+            border: 1px solid var(--border); 
+            scroll-snap-align: start;
+            flex-shrink: 0;
+        }
         .canvas-container { height: 160px; position: relative; }
 
         .resumo-pessoas { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 10px; }
         .pessoa-tag { background: #f1f5f9; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); white-space: nowrap; font-size: 12px; }
 
-        input, select { width: 100%; padding: 10px; border-radius: 8px; border: 1.5px solid var(--border); margin-bottom: 8px; font-size: 16px; outline: none; }
-        .botao { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; }
+        /* PADRONIZAÇÃO DOS INPUTS */
+        input, select { 
+            width: 100%; 
+            height: 45px; /* Altura fixa para todos */
+            padding: 10px; 
+            border-radius: 8px; 
+            border: 1.5px solid var(--border); 
+            margin-bottom: 10px; 
+            font-size: 15px; 
+            outline: none; 
+            background: #fff;
+            appearance: none;
+            -webkit-appearance: none;
+            box-sizing: border-box;
+        }
+        input[type="checkbox"] { width: 18px; height: 18px; margin: 0; accent-color: var(--primary); }
+        
+        .botao { background: var(--primary); color: white; border: none; height: 45px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s; }
+        .botao:active { transform: scale(0.98); }
         
         .gasto-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--card-bg); border-radius: 12px; margin-bottom: 6px; border: 1px solid var(--border); }
         .btn-acao { background: none; border: none; cursor: pointer; font-size: 16px; margin-left: 8px; padding: 4px; }
         
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .parcela-box { background: #f8fafc; padding: 8px; border-radius: 10px; border: 1px dashed var(--border); margin-bottom: 8px; display: none; }
+        .parcela-box { background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px dashed var(--border); margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -159,7 +193,7 @@
                 <div class="card" style="text-align:center; padding: 12px;">
                     <span style="color: var(--text-sub); font-size: 10px; font-weight: 700;">ORÇAMENTO</span>
                     <p id="h-saldo-total" style="font-size:20px; font-weight:800; margin:5px 0">R$ 0,00</p>
-                    <button class="botao" onclick="editarSaldoMensal()" style="padding: 4px; font-size: 10px; background: #f1f5f9; color: var(--primary); width: auto;">✎ Editar</button>
+                    <button class="botao" onclick="editarSaldoMensal()" style="height: 25px; font-size: 10px; background: #f1f5f9; color: var(--primary); width: auto; padding: 0 10px;">✎ Editar</button>
                 </div>
                 <div class="card" style="text-align:center; padding: 12px;">
                     <span style="color: var(--text-sub); font-size: 10px; font-weight: 700;">DISPONÍVEL</span>
@@ -172,19 +206,23 @@
             <div class="grid-layout">
                 <aside>
                     <div class="card">
-                        <h3 id="titulo-form-gasto">Novo Gasto</h3>
+                        <h3 id="titulo-form-gasto" style="margin-bottom: 15px;">Novo Gasto</h3>
                         <input type="hidden" id="edit-index-gasto" value="-1">
                         <input type="text" id="f-local" placeholder="Onde?">
                         <input type="number" id="f-valor" placeholder="Valor Total">
-                        <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:13px; font-weight:600; color:var(--text-sub)">
-                            <input type="checkbox" id="f-is-parcelado" onchange="toggleParcelas()" style="width:auto; margin:0"> Parcelado?
-                        </label>
+                        
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="checkbox" id="f-is-parcelado" onchange="toggleParcelas()">
+                            <label for="f-is-parcelado" style="font-weight: 600; color: var(--text-sub);">Parcelado?</label>
+                        </div>
+
                         <div class="parcela-box" id="box-parcelas">
                             <input type="number" id="f-parcelas" value="1" min="1" placeholder="Nº de parcelas">
                         </div>
-                        <div style="display:flex; gap: 5px; margin-bottom: 8px;">
-                            <select id="f-cartao-select" style="margin-bottom: 0;"></select>
-                            <button class="botao" style="width: 45px; padding: 0;" onclick="novoBanco()">+</button>
+
+                        <div style="display:flex; gap: 8px; margin-bottom: 0px;">
+                            <select id="f-cartao-select" style="flex: 1;"></select>
+                            <button class="botao" style="width: 45px; height: 45px;" onclick="novoBanco()">+</button>
                         </div>
                         <input type="text" id="f-pessoa" placeholder="Quem comprou?">
                         <input type="date" id="f-data">
@@ -202,7 +240,7 @@
         <div id="view-fixas" class="view">
             <div class="grid-layout">
                 <aside><div class="card">
-                    <h3 id="titulo-form-fixa">Conta Fixa</h3>
+                    <h3 id="titulo-form-fixa" style="margin-bottom: 15px;">Conta Fixa</h3>
                     <input type="hidden" id="edit-index-fixa" value="-1">
                     <input type="text" id="fixa-nome" placeholder="Nome">
                     <input type="number" id="fixa-valor" placeholder="Valor">
@@ -218,7 +256,7 @@
                 <div class="card" style="text-align:center; border-top: 4px solid var(--savings);">
                     <span style="color:var(--savings); font-weight:800; font-size: 11px;">RESERVA TOTAL</span>
                     <p id="p-total" style="font-size:30px; font-weight:800; margin:5px 0">R$ 0,00</p>
-                    <button class="botao" style="background:transparent; color:var(--danger); padding: 0; font-size: 11px;" onclick="zerarPoupanca()">Zerar Histórico</button>
+                    <button class="botao" style="background:transparent; color:var(--danger); height: auto; padding: 0; font-size: 11px;" onclick="zerarPoupanca()">Zerar Histórico</button>
                 </div>
                 <div class="card">
                     <input type="number" id="p-valor" placeholder="Valor">
@@ -281,15 +319,12 @@
             if(u && s) db.ref(`usuarios/${u}`).set({ senha: s, saldoMensal: 0, cartoes: ["Nubank"] }).then(() => toggleAuth(false));
         }
 
-        // FUNÇÃO DE TROCA DE ABAS OTIMIZADA PARA EVITAR "EMBAÇADO"
         function switchTab(t) {
-            // Fecha o menu primeiro para liberar processamento
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
 
-            // Aguarda a animação do menu terminar (150ms) antes de processar os gráficos
             setTimeout(() => {
                 document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
                 document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -297,9 +332,7 @@
                 document.getElementById('view-'+t).classList.add('active');
                 if(document.getElementById('btn-'+t)) document.getElementById('btn-'+t).classList.add('active');
                 
-                // Se for aba de cartões, força re-renderização para garantir nitidez
                 if (t === 'cartoes') renderTudo();
-                
                 window.scrollTo(0,0);
             }, 150);
         }
