@@ -126,7 +126,51 @@
         
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .parcela-box { background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px dashed var(--border); margin-bottom: 10px; display: none; }
-    </style>
+    
+        /* AJUSTE RÍGIDO DOS INPUTS */
+#view-cartoes input, 
+#view-cartoes select, 
+#view-cartoes .botao {
+    height: 45px !important;
+    max-height: 45px !important;
+    min-height: 45px !important;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+/* CONTAINER DE GRÁFICOS (CARROSSEL ISOLADO) */
+.charts-wrapper {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto; /* Permite rolar para o lado */
+    padding: 5px 5px 15px 5px;
+    margin-bottom: 10px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.chart-item {
+    min-width: 250px; /* Largura fixa para os cards dos gráficos */
+    max-width: 250px;
+    flex-shrink: 0; /* Impede que o gráfico esprema */
+    scroll-snap-align: start;
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 12px;
+    border: 1px solid var(--border);
+}
+
+/* ESTILO DAS DATAS SUBTIS NA LISTA */
+.data-separador {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-sub);
+    padding: 15px 0 5px 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+   
+   </style>
 </head>
 <body>
 
@@ -446,88 +490,135 @@
         });
 
         function renderTudo() {
-            const u = dados.usuarios[userLogado];
-            if(!u) return;
-            document.getElementById('msg-boas-vindas').innerHTML = `Olá, <b>${userLogado.charAt(0).toUpperCase() + userLogado.slice(1)}</b>`;
+    const u = dados.usuarios[userLogado];
+    if(!u) return;
 
-            let totalG = 0, gastosPorPessoa = {}, alertas = "";
-            const hoje = new Date();
-            (u.financas || []).forEach(g => {
-                totalG += g.valor;
-                gastosPorPessoa[g.pessoa] = (gastosPorPessoa[g.pessoa] || 0) + g.valor;
-            });
-            let totalF = 0;
-            (u.fixas || []).forEach(f => {
-                totalF += f.valor;
-                const dv = new Date(f.vencimento + "T12:00:00");
-                const diff = (dv - hoje) / (1000 * 60 * 60 * 24);
-                if(diff <= 10 && diff >= -1) alertas += `<li>${f.nome} (${dv.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})})</li>`;
-            });
+    // Cabeçalho e Boas Vindas
+    document.getElementById('msg-boas-vindas').innerHTML = `Olá, <b>${userLogado.charAt(0).toUpperCase() + userLogado.slice(1)}</b>`;
 
-            document.getElementById('h-saldo-total').innerText = `R$ ${(u.saldoMensal || 0).toFixed(2)}`;
-            const sobra = (u.saldoMensal || 0) - totalG - totalF;
-            document.getElementById('h-sobra').innerText = `R$ ${sobra.toFixed(2)}`;
-            document.getElementById('h-sobra').style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
-            document.getElementById('alertas-vencimento').style.display = alertas ? "block" : "none";
-            document.getElementById('lista-alertas').innerHTML = alertas;
+    let totalG = 0, gastosPorPessoa = {};
+    const hoje = new Date();
 
-            const cG = document.getElementById('container-graficos'); cG.innerHTML = "";
-            const bancos = u.cartoes || ['Nubank'];
-            document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
+    // Cálculos iniciais
+    (u.financas || []).forEach(g => {
+        totalG += g.valor;
+        gastosPorPessoa[g.pessoa] = (gastosPorPessoa[g.pessoa] || 0) + g.valor;
+    });
+
+    let totalF = 0;
+    let alertas = "";
+    (u.fixas || []).forEach(f => {
+        totalF += f.valor;
+        const dv = new Date(f.vencimento + "T12:00:00");
+        const diff = (dv - hoje) / (1000 * 60 * 60 * 24);
+        if(diff <= 10 && diff >= -1) alertas += `<li>${f.nome} (${dv.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})})</li>`;
+    });
+
+    // Dashboards Superiores
+    document.getElementById('h-saldo-total').innerText = `R$ ${(u.saldoMensal || 0).toFixed(2)}`;
+    const sobra = (u.saldoMensal || 0) - totalG - totalF;
+    document.getElementById('h-sobra').innerText = `R$ ${sobra.toFixed(2)}`;
+    document.getElementById('h-sobra').style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
+    document.getElementById('alertas-vencimento').style.display = alertas ? "block" : "none";
+    document.getElementById('lista-alertas').innerHTML = alertas;
+
+    // --- CARROSSEL DE GRÁFICOS ---
+    const cG = document.getElementById('container-graficos'); 
+    cG.innerHTML = "";
+    const bancos = u.cartoes || ['Nubank'];
+    document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
+    
+    bancos.forEach(b => {
+        const gastosB = (u.financas || []).filter(g => g.cartao === b);
+        const totalB = gastosB.reduce((acc, curr) => acc + curr.valor, 0);
+        
+        if(totalB > 0) {
+            const res = {}; 
+            gastosB.forEach(g => res[g.local] = (res[g.local] || 0) + g.valor);
             
-            bancos.forEach(b => {
-                const gastosB = (u.financas || []).filter(g => g.cartao === b);
-                const totalB = gastosB.reduce((acc, curr) => acc + curr.valor, 0);
-                if(totalB > 0) {
-                    const res = {}; gastosB.forEach(g => res[g.local] = (res[g.local] || 0) + g.valor);
-                    const div = document.createElement('div'); div.className = 'chart-item';
-                    div.innerHTML = `<h5 style="font-size:12px; margin-bottom:8px">${b}</h5><div class="canvas-container"><canvas id="c-${b.replace(/\s/g, '')}"></canvas></div>`;
-                    cG.appendChild(div);
-                    new Chart(document.getElementById(`c-${b.replace(/\s/g, '')}`), { 
-                        type: 'doughnut', 
-                        data: { labels: Object.keys(res), datasets: [{ data: Object.values(res), backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#db2777'], borderWidth: 2 }] }, 
-                        options: { plugins: { legend: { display: false }, centerText: { text: `R$ ${totalB.toFixed(0)}` } }, cutout: '75%', maintainAspectRatio: false } 
-                    });
-                }
+            const div = document.createElement('div'); 
+            div.className = 'chart-item';
+            div.innerHTML = `<h5 style="font-size:11px; margin-bottom:8px; color:var(--primary)">${b}</h5>
+                             <div class="canvas-container"><canvas id="c-${b.replace(/\s/g, '')}"></canvas></div>`;
+            cG.appendChild(div);
+            
+            new Chart(document.getElementById(`c-${b.replace(/\s/g, '')}`), { 
+                type: 'doughnut', 
+                data: { 
+                    labels: Object.keys(res), 
+                    datasets: [{ data: Object.values(res), backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#db2777'], borderWidth: 0 }] 
+                }, 
+                options: { 
+                    plugins: { legend: { display: false }, centerText: { text: `R$ ${totalB.toFixed(0)}` } }, 
+                    cutout: '75%', 
+                    maintainAspectRatio: false 
+                } 
             });
-
-            document.getElementById('resumo-por-pessoa').innerHTML = Object.keys(gastosPorPessoa).map(p => `
-                <div class="pessoa-tag">${p}: <b>R$ ${gastosPorPessoa[p].toFixed(2)}</b></div>
-            `).join('');
-
-            document.getElementById('lista-financas').innerHTML = (u.financas || []).map((g, i) => `
-                <div class="gasto-item">
-                    <span><b style="font-size:14px">${g.local}</b><br><small style="font-size:11px; color:var(--text-sub)">${g.cartao} • ${g.pessoa} ${g.parcelas > 1 ? `(${g.parcelas}x)` : ''}</small></span>
-                    <div style="text-align:right">
-                        <b style="display:block; font-size:14px">R$ ${g.valor.toFixed(2)}</b>
-                        <button class="btn-acao" style="color:var(--primary)" onclick="prepararEdicaoGasto(${i})">✎</button>
-                        <button class="btn-acao" style="color:var(--danger)" onclick="delGasto(${i})">✕</button>
-                    </div>
-                </div>`).reverse().join('');
-
-            document.getElementById('lista-fixas').innerHTML = (u.fixas || []).map((f, i) => `
-                <div class="gasto-item">
-                    <span><b style="font-size:14px">${f.nome}</b><br><small style="font-size:11px; color:var(--text-sub)">Venc: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString('pt-BR')}</small></span>
-                    <div style="text-align:right">
-                        <b style="display:block; font-size:14px">R$ ${f.valor.toFixed(2)}</b>
-                        <button class="btn-acao" style="color:var(--primary)" onclick="prepararEdicaoFixa(${i})">✎</button>
-                        <button class="btn-acao" style="color:var(--danger)" onclick="delFixa(${i})">✕</button>
-                    </div>
-                </div>`).join('');
-
-            let totalP = 0;
-            document.getElementById('lista-poupanca').innerHTML = (u.poupanca_extrato || []).map((m, i) => {
-                totalP += (m.tipo === 'entrada' ? m.valor : -m.valor);
-                return `<div class="gasto-item">
-                    <span><small style="font-size:11px; color:var(--text-sub)">${new Date(m.data).toLocaleDateString('pt-BR')}</small><br>${m.tipo==='entrada'?'📥 Guardado':'📤 Retirado'}</span>
-                    <div style="text-align:right">
-                        <b style="display:block; font-size:14px; color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}">R$ ${m.valor.toFixed(2)}</b>
-                        <button class="btn-acao" style="color:var(--primary)" onclick="editarPoupanca(${i})">✎</button>
-                    </div>
-                </div>`;
-            }).reverse().join('');
-            document.getElementById('p-total').innerText = `R$ ${totalP.toFixed(2)}`;
         }
+    });
+
+    // Tags de Pessoas
+    document.getElementById('resumo-por-pessoa').innerHTML = Object.keys(gastosPorPessoa).map(p => `
+        <div class="pessoa-tag">${p}: <b>R$ ${gastosPorPessoa[p].toFixed(2)}</b></div>
+    `).join('');
+
+    // --- LISTA DE GASTOS COM SEPARAÇÃO POR DATA ---
+    const listaF = u.financas || [];
+    // Ordenar por data (mais recente primeiro)
+    listaF.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+    let htmlFinal = "";
+    let dataAtual = "";
+
+    listaF.forEach((g, i) => {
+        const dataItem = new Date(g.data + "T12:00:00").toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+        
+        // Se a data mudar, insere o cabeçalho sutil
+        if (dataItem !== dataAtual) {
+            htmlFinal += `<div class="data-separador">${dataItem}</div>`;
+            dataAtual = dataItem;
+        }
+
+        htmlFinal += `
+            <div class="gasto-item">
+                <span>
+                    <b style="font-size:14px">${g.local}</b><br>
+                    <small style="font-size:11px; color:var(--text-sub)">${g.cartao} • ${g.pessoa} ${g.parcelas > 1 ? `(${g.parcelas}x)` : ''}</small>
+                </span>
+                <div style="text-align:right">
+                    <b style="display:block; font-size:14px">R$ ${g.valor.toFixed(2)}</b>
+                    <button class="btn-acao" style="color:var(--primary)" onclick="prepararEdicaoGasto(${i})">✎</button>
+                    <button class="btn-acao" style="color:var(--danger)" onclick="delGasto(${i})">✕</button>
+                </div>
+            </div>`;
+    });
+    document.getElementById('lista-financas').innerHTML = htmlFinal;
+
+    // Render das Contas Fixas (Seção Fixas)
+    document.getElementById('lista-fixas').innerHTML = (u.fixas || []).map((f, i) => `
+        <div class="gasto-item">
+            <span><b style="font-size:14px">${f.nome}</b><br><small style="font-size:11px; color:var(--text-sub)">Venc: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString('pt-BR')}</small></span>
+            <div style="text-align:right">
+                <b style="display:block; font-size:14px">R$ ${f.valor.toFixed(2)}</b>
+                <button class="btn-acao" style="color:var(--primary)" onclick="prepararEdicaoFixa(${i})">✎</button>
+                <button class="btn-acao" style="color:var(--danger)" onclick="delFixa(${i})">✕</button>
+            </div>
+        </div>`).join('');
+
+    // Poupanca (Seção Poupança)
+    let totalP = 0;
+    document.getElementById('lista-poupanca').innerHTML = (u.poupanca_extrato || []).map((m, i) => {
+        totalP += (m.tipo === 'entrada' ? m.valor : -m.valor);
+        return `<div class="gasto-item">
+            <span><small style="font-size:11px; color:var(--text-sub)">${new Date(m.data).toLocaleDateString('pt-BR')}</small><br>${m.tipo==='entrada'?'📥 Guardado':'📤 Retirado'}</span>
+            <div style="text-align:right">
+                <b style="display:block; font-size:14px; color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}">R$ ${m.valor.toFixed(2)}</b>
+                <button class="btn-acao" style="color:var(--primary)" onclick="editarPoupanca(${i})">✎</button>
+            </div>
+        </div>`;
+    }).reverse().join('');
+    document.getElementById('p-total').innerText = `R$ ${totalP.toFixed(2)}`;
+}
     </script>
 </body>
 </html>
