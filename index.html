@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS FINANCE - Ultra Pro</title>
+    <title>NEXUS FINANCE - V4</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
@@ -32,7 +32,11 @@
         .big-stat { text-align: center; padding: 25px; }
         .big-stat p { font-size: 32px; font-weight: 800; margin: 5px 0 0 0; }
 
-        .alert-box { background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); color: var(--warning); padding: 12px; border-radius: 12px; margin-bottom: 15px; }
+        /* Ajuste do Calendário */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
 
         input, select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: white; margin-bottom: 8px; }
         .botao { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; width: 100%; }
@@ -43,6 +47,9 @@
         .history-list { overflow-y: auto; height: calc(100% - 185px); }
         .gasto-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 6px; border: 1px solid var(--border); }
         
+        .btn-icon { background:none; border:none; cursor:pointer; font-size: 14px; margin-left: 5px; transition: 0.2s; }
+        .btn-icon:hover { opacity: 0.7; }
+
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -67,15 +74,15 @@
     <main class="view-container" id="main-app" style="display: none;">
         
         <div id="view-home" class="view active">
-            <div id="alertas-vencimento" class="alert-box" style="display:none">
-                <strong>⚠️ Contas Próximas ao Vencimento:</strong>
-                <ul id="lista-alertas" style="margin: 5px 0 0 0; font-size: 11px;"></ul>
+            <div id="alertas-vencimento" class="card" style="display:none; border-color: var(--warning); background: rgba(245,158,11,0.05);">
+                <strong style="color: var(--warning)">⚠️ Contas Próximas ao Vencimento:</strong>
+                <ul id="lista-alertas" style="margin: 10px 0 0 0; padding-left: 20px;"></ul>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="card big-stat">
                     <span style="opacity: 0.6;">SALDO MENSAL</span>
                     <p id="h-saldo-total" style="color: var(--success);">R$ 0,00</p>
-                    <button onclick="editarSaldoMensal()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size: 10px;">✎ Editar Saldo</button>
+                    <button onclick="editarSaldoMensal()" style="background:none; border:none; color:var(--primary); cursor:pointer;">✎ Editar Saldo</button>
                 </div>
                 <div class="card big-stat">
                     <span style="opacity: 0.6;">DISPONÍVEL</span>
@@ -88,14 +95,14 @@
             <div class="grid-layout">
                 <aside class="card">
                     <h3>Novo Lançamento</h3>
-                    <input type="text" id="f-local" placeholder="Onde comprou?">
+                    <input type="text" id="f-local" placeholder="Onde?">
                     <div style="display: flex; gap: 5px; align-items: center;">
-                        <input type="number" id="f-valor" placeholder="R$ 0,00" style="margin:0">
+                        <input type="number" id="f-valor" placeholder="Valor da Compra" style="margin:0">
                         <input type="checkbox" id="check-parcela" onchange="document.getElementById('c-parc').style.display=this.checked?'block':'none'" style="width:15px; height:15px">
                         <label style="font-size: 9px;">Parc.</label>
                     </div>
                     <div id="c-parc" style="display:none; margin-top:5px">
-                        <input type="number" id="f-qtd-parcelas" placeholder="Nº de Parcelas" value="1">
+                        <input type="number" id="f-qtd-parcelas" placeholder="Qtd. Parcelas" value="1">
                     </div>
                     <input type="text" id="f-pessoa" placeholder="Quem comprou?">
                     <input type="date" id="f-data">
@@ -121,17 +128,17 @@
                     <h3>Cadastrar Fixa</h3>
                     <input type="text" id="fixa-nome" placeholder="Ex: Aluguel">
                     <input type="number" id="fixa-valor" placeholder="R$ 0,00">
-                    <label style="font-size: 10px; opacity: 0.6;">Vencimento:</label>
+                    <label style="font-size: 10px; opacity: 0.6;">Data Vencimento:</label>
                     <input type="date" id="fixa-vencimento">
                     <button class="botao" style="background:var(--success)" onclick="addContaFixa()">Salvar Conta</button>
                     
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 10px;">
-                        <h4 style="margin:0">Resumo das Fixas</h4>
-                        <p id="resumo-fixas" style="font-size: 18px; font-weight: 800; color: var(--danger); margin: 10px 0 0 0;">R$ 0,00</p>
+                    <div class="card" style="margin-top: 20px; background: rgba(255,255,255,0.03);">
+                        <h4 style="margin:0">Total em Fixas</h4>
+                        <p id="resumo-fixas" style="font-size: 20px; font-weight: 800; color: var(--danger); margin: 5px 0 0 0;">R$ 0,00</p>
                     </div>
                 </div>
                 <div class="card" style="overflow-y: auto;">
-                    <h3>Lista de Contas Fixas</h3>
+                    <h3>Histórico de Contas Fixas</h3>
                     <div id="lista-fixas"></div>
                 </div>
             </div>
@@ -165,7 +172,7 @@
                     document.getElementById('main-app').style.display = "block";
                     document.getElementById('f-data').valueAsDate = new Date();
                     db.ref('/').on('value', s => { dados = s.val(); renderTudo(); });
-                } else { alert("Login inválido."); }
+                } else { alert("Acesso negado."); }
             });
         }
 
@@ -182,7 +189,6 @@
             const par = document.getElementById('check-parcela').checked ? parseInt(document.getElementById('f-qtd-parcelas').value) : 1;
             const c = document.getElementById('f-cartao-select').value;
             const d = document.getElementById('f-data').value;
-
             if(!l || isNaN(v)) return;
             let list = dados.usuarios[userLogado].financas || [];
             list.push({ local: l, valor: v, pessoa: p, parcelas: par, cartao: c, data: d });
@@ -208,14 +214,27 @@
             document.getElementById('novo-banco').value = "";
         }
 
-        function delGasto(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].financas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/financas`).set(f); } }
-        function delFixa(i) { if(confirm('Excluir?')) { let f = [...dados.usuarios[userLogado].fixas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/fixas`).set(f); } }
-        function editarSaldoMensal() { const n = prompt("Novo saldo:", dados.usuarios[userLogado].saldoMensal); if(n) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(n)); }
+        function delGasto(i) { if(confirm('Excluir gasto?')) { let f = [...dados.usuarios[userLogado].financas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/financas`).set(f); } }
+        function delFixa(i) { if(confirm('Excluir conta fixa?')) { let f = [...dados.usuarios[userLogado].fixas]; f.splice(i,1); db.ref(`usuarios/${userLogado}/fixas`).set(f); } }
+        
+        function editarGasto(i) {
+            const atual = dados.usuarios[userLogado].financas[i];
+            const novo = prompt(`Novo valor para ${atual.local}:`, atual.valor);
+            if(novo !== null && !isNaN(novo)) {
+                let f = [...dados.usuarios[userLogado].financas];
+                f[i].valor = parseFloat(novo);
+                db.ref(`usuarios/${userLogado}/financas`).set(f);
+            }
+        }
+
+        function editarSaldoMensal() { 
+            const n = prompt("Definir novo Saldo Mensal:", dados.usuarios[userLogado].saldoMensal); 
+            if(n && !isNaN(n)) db.ref(`usuarios/${userLogado}/saldoMensal`).set(parseFloat(n)); 
+        }
 
         function renderTudo() {
             const user = dados.usuarios[userLogado];
             if(!user) return;
-            
             let tG = 0, tF = 0, alertas = "";
             const hoje = new Date();
 
@@ -224,10 +243,9 @@
                 tF += f.valor;
                 const dv = new Date(f.vencimento + "T12:00:00");
                 const diff = (dv - hoje) / (1000 * 60 * 60 * 24);
-                if(diff <= 10 && diff >= -1) alertas += `<li>${f.nome} vence dia ${dv.toLocaleDateString('pt-BR')}</li>`;
+                if(diff <= 10 && diff >= -1) alertas += `<li><strong>${f.nome}</strong> vence dia ${dv.toLocaleDateString('pt-BR')}</li>`;
             });
 
-            // HOME & RESUMO
             document.getElementById('alertas-vencimento').style.display = alertas ? "block" : "none";
             document.getElementById('lista-alertas').innerHTML = alertas;
             document.getElementById('h-saldo-total').innerText = `R$ ${(user.saldoMensal || 0).toFixed(2)}`;
@@ -238,7 +256,6 @@
             sEl.innerText = `R$ ${sobra.toFixed(2)}`;
             sEl.style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
 
-            // CARTÕES & GRÁFICOS
             const cG = document.getElementById('container-graficos'); cG.innerHTML = "";
             const bancos = user.cartoes || ['Nubank'];
             document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
@@ -247,12 +264,10 @@
                 const gastosB = (user.financas || []).filter(g => g.cartao === b);
                 if(gastosB.length === 0) return;
                 const res = {}; gastosB.forEach(g => res[g.local] = (res[g.local] || 0) + g.valor);
-                
                 const div = document.createElement('div');
                 div.className = 'chart-container';
                 div.innerHTML = `<h5 style="margin:0; font-size:10px">${b}</h5><canvas id="c-${b}"></canvas>`;
                 cG.appendChild(div);
-
                 new Chart(document.getElementById(`c-${b}`), {
                     type: 'doughnut',
                     data: { labels: Object.keys(res), datasets: [{ data: Object.values(res), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'], borderWidth: 0 }] },
@@ -260,23 +275,22 @@
                 });
             });
 
-            // HISTORICO GERAL
             document.getElementById('lista-financas').innerHTML = (user.financas || []).map((g, i) => `
                 <div class="gasto-item">
-                    <span><b>${g.cartao}</b> | ${g.local} <small style="opacity:0.5">(${g.pessoa})</small> ${g.parcelas > 1 ? `<br><small style="color:var(--warning)">Parcelado 1/${g.parcelas}</small>` : ''}</span>
+                    <span><b>${g.cartao}</b> | ${g.local} <small style="opacity:0.5">(${g.pessoa})</small> ${g.parcelas > 1 ? `<br><small style="color:var(--warning)">Parcela: R$ ${g.valor.toFixed(2)} (x${g.parcelas})</small>` : ''}</span>
                     <div>
                         <b style="color:var(--primary)">R$ ${g.valor.toFixed(2)}</b>
-                        <button onclick="delGasto(${i})" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:8px">✕</button>
+                        <button class="btn-icon" onclick="editarGasto(${i})">✎</button>
+                        <button class="btn-icon" style="color:var(--danger)" onclick="delGasto(${i})">✕</button>
                     </div>
                 </div>`).reverse().join('');
 
-            // LISTA FIXAS
             document.getElementById('lista-fixas').innerHTML = (user.fixas || []).map((f, i) => `
                 <div class="gasto-item">
-                    <span>${f.nome} <br><small style="opacity:0.5">Vence: ${new Date(f.vencimento + "T12:00:00").toLocaleDateString('pt-BR')}</small></span>
+                    <span>${f.nome} <br><small style="opacity:0.5">Vencimento: ${new Date(f.vencimento + "T12:00:00").toLocaleDateString('pt-BR')}</small></span>
                     <div>
                         <b style="color:var(--danger)">R$ ${f.valor.toFixed(2)}</b>
-                        <button onclick="delFixa(${i})" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:8px">✕</button>
+                        <button class="btn-icon" style="color:var(--danger)" onclick="delFixa(${i})">✕</button>
                     </div>
                 </div>`).join('');
         }
