@@ -59,10 +59,8 @@
 
         .card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); padding: 14px; margin-bottom: 10px; }
         
-        /* Layout Vertical solicitado */
         .grid-layout { display: flex; flex-direction: column; gap: 10px; }
         
-        /* Estilo para as somas dos cartões abaixo do form */
         .cards-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 5px; }
         .card-total-box { background: var(--card-bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; text-align: center; }
         .card-total-box h4 { font-size: 12px; color: var(--primary); margin-bottom: 5px; }
@@ -74,6 +72,12 @@
         input, select { 
             width: 100%; height: 45px; padding: 10px; border-radius: 8px; border: 1.5px solid var(--border); 
             margin-bottom: 10px; font-size: 15px; outline: none; background: #fff; appearance: none;
+        }
+        
+        /* AJUSTE DO CHECKBOX */
+        .check-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; }
+        input[type="checkbox"] { 
+            width: 22px; height: 22px; margin: 0; appearance: auto; cursor: pointer; accent-color: var(--primary);
         }
         
         .botao { background: var(--primary); color: white; border: none; height: 45px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; }
@@ -157,10 +161,12 @@
                     <input type="hidden" id="edit-index-gasto" value="-1">
                     <input type="text" id="f-local" placeholder="Onde?">
                     <input type="number" id="f-valor" placeholder="Valor Total">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <input type="checkbox" id="f-is-parcelado" onchange="toggleParcelas()" style="width: 20px; height: 20px; margin: 0;">
-                        <label for="f-is-parcelado" style="font-weight: 600; color: var(--text-sub);">Parcelado?</label>
-                    </div>
+                    
+                    <label class="check-container">
+                        <input type="checkbox" id="f-is-parcelado" onchange="toggleParcelas()">
+                        <span style="font-weight: 600; color: var(--text-sub);">Parcelado?</span>
+                    </label>
+
                     <div class="parcela-box" id="box-parcelas">
                         <input type="number" id="f-parcelas" value="1" min="1" placeholder="Nº de parcelas">
                     </div>
@@ -355,7 +361,6 @@
             const bancos = u.cartoes || ['Nubank'];
             document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
             
-            // Renderiza as somas dos cartões como caixas simples (conforme as imagens)
             document.getElementById('cards-summary').innerHTML = bancos.map(b => `
                 <div class="card-total-box">
                     <h4>${b}</h4>
