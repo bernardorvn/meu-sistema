@@ -262,14 +262,26 @@
         function addContaFixa() {
             const idx = parseInt(document.getElementById('edit-index-fixa').value);
             let list = dados.usuarios[userLogado].fixas || [];
-            const obj = { nome: document.getElementById('fixa-nome').value, valor: parseFloat(document.getElementById('fixa-valor').value), vencimento: document.getElementById('fixa-vencimento').value };
+            const jaPaga = idx !== -1 ? (list[idx].paga || false) : false;
+            const obj = { 
+                nome: document.getElementById('fixa-nome').value, 
+                valor: parseFloat(document.getElementById('fixa-valor').value), 
+                vencimento: document.getElementById('fixa-vencimento').value,
+                paga: jaPaga 
+            };
             if(idx === -1) list.push(obj); else list[idx] = obj;
             db.ref(`usuarios/${userLogado}/fixas`).set(list).then(() => {
                 document.getElementById('fixa-nome').value = ""; document.getElementById('fixa-valor').value = ""; document.getElementById('fixa-vencimento').value = ""; document.getElementById('edit-index-fixa').value = "-1";
             });
         }
 
-        // FUNÇÕES DE EDIÇÃO (CARREGAR NO FORMULÁRIO)
+        function togglePagarFixa(i) {
+            let list = dados.usuarios[userLogado].fixas || [];
+            list[i].paga = !list[i].paga;
+            db.ref(`usuarios/${userLogado}/fixas`).set(list);
+        }
+
+        // EDIÇÃO
         function editGasto(i) {
             const g = dados.usuarios[userLogado].financas[i];
             document.getElementById('edit-index-gasto').value = i;
@@ -293,7 +305,7 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // LÓGICA DE HISTÓRICO
+        // HISTÓRICO
         function salvarNoHistorico() {
             const u = dados.usuarios[userLogado];
             if(!(u.financas || u.fixas)) return alert("Nada para salvar!");
@@ -339,7 +351,7 @@
             document.getElementById('hist-lista-itens').innerHTML = html;
         }
 
-        // POUPANÇA E GERAL
+        // AUXILIAR E GERAL
         function movimentarPoupanca(tipo) {
             const v = parseFloat(document.getElementById('p-valor').value);
             if(isNaN(v)) return;
@@ -364,15 +376,16 @@
             (u.financas || []).forEach(g => { totalG += g.valor; gPessoa[g.pessoa] = (gPessoa[g.pessoa] || 0) + g.valor; gCartao[g.cartao] = (gCartao[g.cartao] || 0) + g.valor; });
             
             let totalF = 0, alertasHtml = "";
-            (u.fixas || []).forEach(f => {
-                totalF += f.valor;
+            (u.fixas || []).forEach((f, i) => {
+                if (!f.paga) totalF += f.valor;
                 if (f.vencimento) {
                     const dv = new Date(f.vencimento + "T12:00:00");
                     const hoje = new Date(); hoje.setHours(0,0,0,0);
                     const diff = Math.ceil((dv - hoje) / (1000 * 60 * 60 * 24));
-                    if(diff <= 10 && diff >= -1) alertasHtml += `<li>${f.nome} (${dv.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})})</li>`;
+                    if(!f.paga && diff <= 10 && diff >= -1) alertasHtml += `<li>${f.nome} (${dv.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})})</li>`;
                 }
             });
+
             const boxAlerta = document.getElementById('alertas-vencimento');
             if (alertasHtml) { boxAlerta.style.display = "block"; document.getElementById('lista-alertas').innerHTML = alertasHtml; } 
             else { boxAlerta.style.display = "none"; }
@@ -396,7 +409,21 @@
             });
             document.getElementById('lista-financas').innerHTML = htmlG;
 
-            document.getElementById('lista-fixas').innerHTML = (u.fixas || []).map((f,i) => `<div class="gasto-item"><span><b>${f.nome}</b><br><small>Venc: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString('pt-BR')}</small></span><div style="text-align:right"><b>R$ ${f.valor.toFixed(2)}</b><br><button class="btn-acao" style="color:var(--primary)" onclick="editFixa(${i})">✎</button><button class="btn-acao" style="color:var(--danger)" onclick="delFixa(${i})">✕</button></div></div>`).join('');
+            document.getElementById('lista-fixas').innerHTML = (u.fixas || []).map((f,i) => `
+                <div class="gasto-item" style="${f.paga ? 'opacity: 0.6;' : ''}">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" ${f.paga ? 'checked' : ''} onchange="togglePagarFixa(${i})" style="margin:0; width: 18px; height: 18px;">
+                        <span style="${f.paga ? 'text-decoration: line-through; color: var(--text-sub);' : 'font-weight: bold;'}">
+                            ${f.nome}<br>
+                            <small>Venc: ${new Date(f.vencimento+"T12:00:00").toLocaleDateString('pt-BR')}</small>
+                        </span>
+                    </div>
+                    <div style="text-align:right">
+                        <b style="${f.paga ? 'text-decoration: line-through;' : ''}">R$ ${f.valor.toFixed(2)}</b><br>
+                        <button class="btn-acao" style="color:var(--primary)" onclick="editFixa(${i})">✎</button>
+                        <button class="btn-acao" style="color:var(--danger)" onclick="delFixa(${i})">✕</button>
+                    </div>
+                </div>`).join('');
             
             let tP = 0;
             document.getElementById('lista-poupanca').innerHTML = (u.poupanca_extrato || []).map(m => { tP += (m.tipo==='entrada'? m.valor : -m.valor); return `<div class="gasto-item"><span>${m.tipo==='entrada'?'📥 Guardado':'📤 Retirado'}</span><b>R$ ${m.valor.toFixed(2)}</b></div>`; }).reverse().join('');
