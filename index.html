@@ -17,7 +17,6 @@
             --warning: #f59e0b; --text-main: #0f172a; --text-sub: #64748b; --savings: #db2777;
         }
 
-        /* DARK MODE - CORES ADAPTADAS */
         [data-theme="dark"] {
             --bg: #0f172a; --card-bg: #1e293b; --border: #334155;
             --text-main: #f8fafc; --text-sub: #94a3b8;
@@ -26,18 +25,15 @@
         * { box-sizing: border-box; font-size: 14px; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; overflow-x: hidden; transition: 0.3s; }
 
-        /* HEADER */
         .app-header { display: none; align-items: center; padding: 12px 15px; background: var(--card-bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; justify-content: space-between; }
         .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-main); }
         .app-logo { font-weight: 800; color: var(--primary); font-size: 16px; letter-spacing: -0.5px; }
 
-        /* SIDEBAR */
         .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--card-bg); z-index: 200; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 10px 0 30px rgba(0,0,0,0.1); padding: 25px 20px; }
         .sidebar.active { left: 0; }
         .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; backdrop-filter: blur(2px); }
         .sidebar-overlay.active { display: block; }
 
-        /* DARK MODE TOGGLE */
         .theme-switch { display: flex; background: var(--bg); border-radius: 12px; padding: 4px; margin: 15px 0; border: 1px solid var(--border); }
         .theme-btn { flex: 1; border: none; background: none; padding: 6px; border-radius: 8px; cursor: pointer; color: var(--text-sub); font-weight: 700; font-size: 11px; }
         .theme-btn.active { background: var(--primary); color: white; }
@@ -48,7 +44,6 @@
         .nav-item.active { background: #eef2ff; color: var(--primary); }
         [data-theme="dark"] .nav-item.active { background: #312e81; color: #c7d2fe; }
         
-        /* CONTEÚDO */
         .view-container { padding: 12px; max-width: 800px; margin: 0 auto; }
         .view { display: none; }
         .view.active { display: block; }
@@ -176,7 +171,7 @@
                     <label class="check-container"><input type="checkbox" id="f-is-parcelado" onchange="toggleParcelas()"><span style="font-weight:600; color:var(--text-sub);">Parcelado?</span></label>
                     <div class="parcela-box" id="box-parcelas"><input type="number" id="f-parcelas" value="1" min="1" placeholder="Nº de parcelas"></div>
                     <div style="display:flex; gap: 8px;"><select id="f-cartao-select" style="flex: 1;"></select><button class="botao" style="width: 45px;" onclick="novoBanco()">+</button></div>
-                    <input type="text" id="f-pessoa" placeholder="Quem comprou?">
+                    <input type="text" id="f-pessoa" placeholder="Quem comprou? (Opcional)">
                     <input type="date" id="f-data">
                     <button class="botao" onclick="addGasto()">Salvar Compra</button>
                 </div>
@@ -212,7 +207,6 @@
                     <button id="btn-exportar" class="botao" style="display:none; background:#f1f5f9; color:#000; margin-top:10px" onclick="exportarCSV()">📥 Baixar Planilha (Excel)</button>
                 </div>
                 <div id="hist-detalhes" style="display:none">
-                    <div class="resumo-pessoas" id="hist-resumo-pessoas"></div>
                     <div id="hist-lista-itens"></div>
                 </div>
             </div>
@@ -247,20 +241,29 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
-        let userUID = "", dados = {};
+        let userUID = "", dados = {}, usuarioLogado = null;
 
         // --- MONITOR DE AUTENTICAÇÃO ---
         auth.onAuthStateChanged(user => {
             if (user) {
+                usuarioLogado = user;
                 userUID = user.uid;
                 document.getElementById('tela-auth').style.display = "none";
                 document.getElementById('app-header').style.display = "flex";
                 document.getElementById('main-app').style.display = "block";
+                
+                // Salvar dados básicos do usuário caso não existam
+                db.ref(`usuarios/${userUID}/perfil`).update({
+                    nome: user.displayName || user.email.split('@')[0],
+                    email: user.email
+                });
+
                 db.ref(`usuarios/${userUID}`).on('value', snap => {
                     dados = snap.val() || {};
                     renderTudo();
                 });
             } else {
+                usuarioLogado = null;
                 document.getElementById('tela-auth').style.display = "flex";
                 document.getElementById('main-app').style.display = "none";
                 document.getElementById('app-header').style.display = "none";
@@ -300,8 +303,9 @@
         function exportarCSV() {
             const id = document.getElementById('hist-select-mes').value;
             const mesDados = dados.historico[id];
-            let csv = "Item;Pessoa;Cartao;Valor\n";
-            (mesDados.financas || []).forEach(g => { csv += `${g.local};${g.pessoa};${g.cartao};${g.valor.toFixed(2)}\n`; });
+            let csv = "Tipo;Item;Identificacao;Valor\n";
+            (mesDados.financas || []).forEach(g => { csv += `Cartao;${g.local};${g.pessoa};${g.valor.toFixed(2)}\n`; });
+            (mesDados.fixas || []).forEach(f => { csv += `Fixa;${f.nome};Venc: ${f.vencimento};${f.valor.toFixed(2)}\n`; });
             const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
@@ -326,15 +330,33 @@
 
         // --- OPERAÇÕES ---
         function addGasto() {
+            if(!usuarioLogado) return;
             const idx = parseInt(document.getElementById('edit-index-gasto').value);
             const total = parseFloat(document.getElementById('f-valor').value);
             if(isNaN(total)) return;
+
             const parc = document.getElementById('f-is-parcelado').checked ? (parseInt(document.getElementById('f-parcelas').value) || 1) : 1;
             let list = dados.financas || [];
-            const obj = { local: document.getElementById('f-local').value || "Gasto", valor: total / parc, valorTotal: total, parcelas: parc, pessoa: document.getElementById('f-pessoa').value || "Eu", cartao: document.getElementById('f-cartao-select').value, data: document.getElementById('f-data').value || new Date().toISOString().split('T')[0] };
+            
+            // Pega o nome digitado ou usa o do Google automaticamente
+            const nomePessoa = document.getElementById('f-pessoa').value || usuarioLogado.displayName || usuarioLogado.email.split('@')[0];
+
+            const obj = { 
+                local: document.getElementById('f-local').value || "Gasto", 
+                valor: total / parc, 
+                valorTotal: total, 
+                parcelas: parc, 
+                pessoa: nomePessoa, // <-- Identificação automática aqui
+                cartao: document.getElementById('f-cartao-select').value, 
+                data: document.getElementById('f-data').value || new Date().toISOString().split('T')[0] 
+            };
+
             if(idx === -1) list.push(obj); else list[idx] = obj;
             db.ref(`usuarios/${userUID}/financas`).set(list).then(() => {
-                document.getElementById('f-local').value = ""; document.getElementById('f-valor').value = ""; document.getElementById('edit-index-gasto').value = "-1";
+                document.getElementById('f-local').value = ""; 
+                document.getElementById('f-valor').value = ""; 
+                document.getElementById('f-pessoa').value = "";
+                document.getElementById('edit-index-gasto').value = "-1";
             });
         }
 
@@ -368,12 +390,19 @@
         function salvarNoHistorico() {
             if(!(dados.financas || dados.fixas)) return alert("Nada para salvar!");
             const mesNome = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase();
-            if(!confirm(`Fechar o mês de ${mesNome}?`)) return;
-            const backup = { mes: mesNome, financas: dados.financas || [], fixas: dados.fixas || [], saldoMensal: dados.saldoMensal || 0 };
+            if(!confirm(`Fechar o mês de ${mesNome}? Isso salvará cartões e contas fixas.`)) return;
+            
+            const backup = { 
+                mes: mesNome, 
+                financas: dados.financas || [], 
+                fixas: dados.fixas || [], // <-- Agora salvando as fixas no histórico
+                saldoMensal: dados.saldoMensal || 0 
+            };
+
             db.ref(`usuarios/${userUID}/historico`).push(backup).then(() => {
                 db.ref(`usuarios/${userUID}/financas`).set([]);
-                db.ref(`usuarios/${userUID}/fixas`).set([]);
-                alert("Mês salvo!");
+                db.ref(`usuarios/${userUID}/fixas`).set([]); // <-- Limpa as fixas para o novo mês
+                alert("Mês encerrado com sucesso!");
             });
         }
 
@@ -393,8 +422,19 @@
             if(!id) { det.style.display = "none"; return; }
             det.style.display = "block";
             const mes = dados.historico[id];
-            let html = `<h4>Lançamentos</h4>`;
-            (mes.financas || []).forEach(g => { html += `<div class="gasto-item"><span>${g.local}</span><b>R$ ${g.valor.toFixed(2)}</b></div>`; });
+            
+            let html = `<h4 style="margin: 15px 0 10px; color: var(--primary);">🛒 Cartões</h4>`;
+            if((mes.financas || []).length === 0) html += `<p><small>Nenhum gasto em cartão.</small></p>`;
+            (mes.financas || []).forEach(g => { 
+                html += `<div class="gasto-item"><span>${g.local} <small>(${g.pessoa})</small></span><b>R$ ${g.valor.toFixed(2)}</b></div>`; 
+            });
+
+            html += `<h4 style="margin: 20px 0 10px; color: var(--success);">📄 Contas Fixas</h4>`;
+            if((mes.fixas || []).length === 0) html += `<p><small>Nenhuma conta fixa salva.</small></p>`;
+            (mes.fixas || []).forEach(f => { 
+                html += `<div class="gasto-item"><span>${f.nome} <small>(${f.vencimento})</small></span><b>R$ ${f.valor.toFixed(2)}</b></div>`; 
+            });
+
             document.getElementById('hist-lista-itens').innerHTML = html;
         }
 
@@ -417,6 +457,8 @@
         function renderTudo() {
             const u = dados;
             const userObj = auth.currentUser;
+            if(!userObj) return;
+            
             document.getElementById('msg-boas-vindas').innerHTML = `Olá, <b>${userObj.displayName || userObj.email.split('@')[0]}</b>`;
             
             const termoBusca = document.getElementById('input-busca').value.toLowerCase();
