@@ -242,11 +242,40 @@
             projectId: "sistema-bernardo-1999",
             databaseURL: "https://sistema-bernardo-1999-default-rtdb.firebaseio.com/"
         };
-        firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
-        let userUID = "", dados = {}, usuarioLogado = null;
 
+        // 1. FORÇAR PERSISTÊNCIA LOCAL (Essencial para o Safari não deslogar sozinho)
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => {
+                console.log("Persistência definida como LOCAL");
+            })
+            .catch((error) => {
+                console.error("Erro na persistência:", error);
+            });
+
+        let userUID = "", dados = {}, usuarioLogado = null;
+        let processandoLogin = false; // Controle de login para evitar loops
+
+        // 2. CAPTURAR O RESULTADO DO REDIRECT (Para o Safari processar o login do Google)
+        auth.getRedirectResult().then((result) => {
+            processandoLogin = false;
+            if (result && result.user) {
+                console.log("Login via redirect concluído com sucesso.");
+            }
+        }).catch((error) => {
+            processandoLogin = false;
+            if (error.code !== 'auth/no-auth-event') {
+                console.error("Erro no redirecionamento:", error.code);
+                // Alerta específico para bloqueio de cookies/rastreamento no Safari
+                if (error.code === 'auth/web-storage-unsupported' || error.code === 'auth/operation-not-supported-in-this-environment') {
+                    alert("O Safari está bloqueando o acesso. Vá em Ajustes > Safari e desative 'Impedir Rastreamento entre Sites' ou saia do Modo Privado.");
+                }
+            }
+        });
+
+        // 3. MONITORAR ESTADO DO USUÁRIO (Sua lógica original preservada)
         auth.onAuthStateChanged(user => {
             if (user) {
                 usuarioLogado = user;
