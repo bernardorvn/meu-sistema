@@ -246,6 +246,7 @@
         const db = firebase.database();
         const auth = firebase.auth();
         let userUID = "", dados = {}, usuarioLogado = null;
+        let processandoLogin = false; // Controle de login para evitar loops
 
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -272,15 +273,39 @@
             }
         });
 
+        // Captura o resultado do Redirecionamento (Especialmente para Safari/Mobile)
+        auth.getRedirectResult().then((result) => {
+            processandoLogin = false;
+            if (result && result.user) {
+                console.log("Login via redirect concluído.");
+            }
+        }).catch((error) => {
+            processandoLogin = false;
+            if (error.code !== 'auth/no-auth-event') {
+                console.error("Erro no redirecionamento:", error.code);
+                if (error.code === 'auth/web-storage-unsupported') {
+                    alert("Atenção: O Safari está bloqueando o armazenamento local. Desative o 'Impedir Rastreamento entre Sites' nas configurações do Safari.");
+                }
+            }
+        });
+
         function loginGoogle() {
+            if (processandoLogin) return;
+            processandoLogin = true;
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(err => alert(err.message));
+            // Mudança para Redirect para suportar Safari e segurança do Google
+            auth.signInWithRedirect(provider).catch(err => {
+                processandoLogin = false;
+                alert("Erro ao iniciar login: " + err.message);
+            });
         }
+
         function fazerLogin() {
             const e = document.getElementById('usuario').value;
             const s = document.getElementById('senha').value;
             auth.signInWithEmailAndPassword(e, s).catch(err => alert("Erro: " + err.message));
         }
+
         function registrar() {
             const e = document.getElementById('cad-user').value;
             const s = document.getElementById('cad-pass').value;
@@ -288,9 +313,9 @@
                 db.ref(`usuarios/${res.user.uid}`).set({ saldoMensal: 0, cartoes: ["Nubank"] });
             }).catch(err => alert(err.message));
         }
+
         function fazerLogout() { auth.signOut(); }
 
-        // NOVA FUNÇÃO RECUPERAR SENHA COM TRATAMENTO DE ERROS
         function recuperarSenha() {
             const e = prompt("Digite seu e-mail para recuperação:");
             if (e) {
