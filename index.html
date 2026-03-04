@@ -423,13 +423,13 @@
             det.style.display = "block";
             const mes = dados.historico[id];
             
-            let html = `<h4 style="margin: 15px 0 10px; color: var(--primary);">🛒 Cartões</h4>`;
+            let html = `<h4 style="margin: 15px 0 10px; color: var(--primary);"> Cartões</h4>`;
             if((mes.financas || []).length === 0) html += `<p><small>Nenhum gasto em cartão.</small></p>`;
             (mes.financas || []).forEach(g => { 
                 html += `<div class="gasto-item"><span>${g.local} <small>(${g.pessoa})</small></span><b>R$ ${g.valor.toFixed(2)}</b></div>`; 
             });
 
-            html += `<h4 style="margin: 20px 0 10px; color: var(--success);">📄 Contas Fixas</h4>`;
+            html += `<h4 style="margin: 20px 0 10px; color: var(--success);"> Contas Fixas</h4>`;
             if((mes.fixas || []).length === 0) html += `<p><small>Nenhuma conta fixa salva.</small></p>`;
             (mes.fixas || []).forEach(f => { 
                 html += `<div class="gasto-item"><span>${f.nome} <small>(${f.vencimento})</small></span><b>R$ ${f.valor.toFixed(2)}</b></div>`; 
