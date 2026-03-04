@@ -289,7 +289,27 @@
             }).catch(err => alert(err.message));
         }
         function fazerLogout() { auth.signOut(); }
-        function recuperarSenha() { const e = prompt("E-mail para recuperação:"); if(e) auth.sendPasswordResetEmail(e).then(() => alert("Enviado!")); }
+
+        // NOVA FUNÇÃO RECUPERAR SENHA COM TRATAMENTO DE ERROS
+        function recuperarSenha() {
+            const e = prompt("Digite seu e-mail para recuperação:");
+            if (e) {
+                auth.sendPasswordResetEmail(e)
+                    .then(() => {
+                        alert("E-mail de recuperação enviado! Verifique sua caixa de entrada e a pasta de spam.");
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao recuperar:", error.code);
+                        if (error.code === 'auth/user-not-found') {
+                            alert("Este e-mail não está cadastrado no sistema.");
+                        } else if (error.code === 'auth/invalid-email') {
+                            alert("Formato de e-mail inválido.");
+                        } else {
+                            alert("Erro ao enviar: " + error.message);
+                        }
+                    });
+            }
+        }
 
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
@@ -348,7 +368,7 @@
                 nome: document.getElementById('fixa-nome').value, 
                 valor: parseFloat(document.getElementById('fixa-valor').value), 
                 vencimento: document.getElementById('fixa-vencimento').value, 
-                recorrente: document.getElementById('fixa-recorrente').checked, // <-- Nova propriedade
+                recorrente: document.getElementById('fixa-recorrente').checked,
                 paga: idx !== -1 ? (list[idx].paga || false) : false 
             };
             if(idx === -1) list.push(obj); else list[idx] = obj;
@@ -387,15 +407,11 @@
             };
 
             db.ref(`usuarios/${userUID}/historico`).push(backup).then(() => {
-                // Limpar gastos de cartão
                 db.ref(`usuarios/${userUID}/financas`).set([]);
-                
-                // Lógica de Recorrência: Filtrar apenas as recorrentes e resetar o 'paga'
                 const todasFixas = dados.fixas || [];
                 const proximasFixas = todasFixas
                     .filter(f => f.recorrente === true)
-                    .map(f => ({ ...f, paga: false })); // Mantém os dados, mas marca como não paga
-
+                    .map(f => ({ ...f, paga: false }));
                 db.ref(`usuarios/${userUID}/fixas`).set(proximasFixas);
                 alert("Mês encerrado! As contas recorrentes já estão prontas para o novo mês.");
             });
