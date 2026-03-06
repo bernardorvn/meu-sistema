@@ -407,22 +407,9 @@
         }
 
         function togglePagarFixa(i) {
-            let list = [...(dados.fixas || [])];
-            let saldoAtual = dados.saldoMensal || 0;
-            const valorConta = list[i].valor;
-
-            if (!list[i].paga) {
-                saldoAtual -= valorConta; // Deduz do saldo se marcar como paga
-            } else {
-                saldoAtual += valorConta; // Devolve ao saldo se desmarcar
-            }
-
+            let list = dados.fixas || [];
             list[i].paga = !list[i].paga;
-            
-            db.ref(`usuarios/${userUID}`).update({
-                fixas: list,
-                saldoMensal: saldoAtual
-            });
+            db.ref(`usuarios/${userUID}/fixas`).set(list);
         }
 
         function editGasto(i) {
@@ -503,7 +490,7 @@
 
         function delGasto(i) { if(confirm('Excluir?')) { let f = [...dados.financas]; f.splice(i,1); db.ref(`usuarios/${userUID}/financas`).set(f); } }
         function delFixa(i) { if(confirm('Excluir?')) { let f = [...dados.fixas]; f.splice(i,1); db.ref(`usuarios/${userUID}/fixas`).set(f); } }
-        function editarSaldoMensal() { const n = prompt("Novo orçamento:"); if(n) db.ref(`usuarios/${userUID}/saldoMensal`).set(parseFloat(n)); }
+        function editarSaldoMensal() { const n = prompt("Novo Saldo Inicial:"); if(n) db.ref(`usuarios/${userUID}/saldoMensal`).set(parseFloat(n)); }
         function novoBanco() { const b = prompt("Banco:"); if(b) { let l = dados.cartoes || []; l.push(b); db.ref(`usuarios/${userUID}/cartoes`).set(l); } }
         function zerarPoupanca() { if(confirm("Zerar?")) db.ref(`usuarios/${userUID}/poupanca_extrato`).set([]); }
 
@@ -517,10 +504,9 @@
             const financasFiltradas = (u.financas || []).filter(g => g.local.toLowerCase().includes(termoBusca) || g.pessoa.toLowerCase().includes(termoBusca));
             (u.financas || []).forEach(g => { totalG += g.valor; gPessoa[g.pessoa] = (gPessoa[g.pessoa] || 0) + g.valor; gCartao[g.cartao] = (gCartao[g.cartao] || 0) + g.valor; });
             
-            let totalF_pendente = 0, alertasHtml = "";
+            let totalF = 0, alertasHtml = "";
             (u.fixas || []).forEach((f, i) => {
-                // Apenas as não pagas somam para o cálculo da sobra
-                if (!f.paga) totalF_pendente += f.valor;
+                totalF += f.valor; // Agora soma o valor de todas as fixas
                 if (f.vencimento && !f.paga) {
                     const diff = Math.ceil((new Date(f.vencimento + "T12:00:00") - new Date()) / (1000 * 60 * 60 * 24));
                     if(diff <= 5) alertasHtml += `<li>${f.nome} (em ${diff} dias)</li>`;
@@ -528,11 +514,8 @@
             });
             const boxAlerta = document.getElementById('alertas-vencimento');
             if (alertasHtml) { boxAlerta.style.display = "block"; document.getElementById('lista-alertas').innerHTML = alertasHtml; } else { boxAlerta.style.display = "none"; }
-            
             document.getElementById('h-saldo-total').innerText = `R$ ${(u.saldoMensal || 0).toFixed(2)}`;
-            // Sobra agora considera que o saldoMensal já diminuiu ao pagar
-            const sobra = (u.saldoMensal || 0) - totalG - totalF_pendente;
-            
+            const sobra = (u.saldoMensal || 0) - totalG - totalF;
             document.getElementById('h-sobra').innerText = `R$ ${sobra.toFixed(2)}`;
             document.getElementById('h-sobra').style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
             const bancos = u.cartoes || ['Nubank'];
