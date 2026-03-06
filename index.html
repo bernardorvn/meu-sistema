@@ -98,15 +98,11 @@
                 <p onclick="recuperarSenha()" style="margin-top:12px; cursor:pointer; color: var(--primary); font-size: 12px;">Esqueci minha senha</p>
             </div>
             <div id="box-cad" style="display:none">
-                <input type="text" id="cad-nome" placeholder="Nome Completo">
-                <input type="email" id="cad-user" placeholder="E-mail">
-                <input type="date" id="cad-nascimento" placeholder="Data de Nascimento">
-                <input type="tel" id="cad-tel" placeholder="Celular (DD) 9XXXX-XXXX">
+                <input type="email" id="cad-user" placeholder="Seu melhor e-mail">
                 <input type="password" id="cad-pass" placeholder="Senha">
-                <input type="password" id="cad-confirm-pass" placeholder="Confirme a Senha">
-                <button onclick="registrar()">Criar Conta</button>
-                <p onclick="toggleAuth(false)">Já tem conta? Entre aqui</p>
-</div>
+                <button class="botao" style="background:var(--success)" onclick="registrar()">Criar Conta</button>
+                <p onclick="toggleAuth(false)" style="margin-top:20px; cursor:pointer; color: var(--text-sub);">Voltar ao login</p>
+            </div>
         </div>
     </div>
 
@@ -165,24 +161,12 @@
             </div>
         </div>
 
-        <div id="view-perfil" class="view">
-                <h3>Meus Dados</h3>
-                <div class="card-total-box" style="text-align: left; padding: 20px;">
-                    <p><strong>Nome:</strong> <span id="p-nome">---</span></p>
-                    <p><strong>Usuário:</strong> <span id="p-nick">---</span></p>
-                    <p><strong>E-mail:</strong> <span id="p-email">---</span></p>
-                    <p id="p-extra-nasc"><strong>Nascimento:</strong> <span id="p-nasc">---</span></p>
-                    <p id="p-extra-tel"><strong>Celular:</strong> <span id="p-tel">---</span></p>
-                </div>
-                <button onclick="fazerLogout()" class="btn-perigo">Sair do Sistema</button>
-</div>
-
         <div id="view-cartoes" class="view">
             <div class="grid-layout">
                 <div class="card">
                     <h3 style="margin-bottom: 15px;">Novo Gasto</h3>
                     <input type="hidden" id="edit-index-gasto" value="-1">
-                    <input type="text" id="f-local" placeholder="Onde?">
+                    <input type="text" id="f-local" placeholder="Descrição?">
                     <input type="number" id="f-valor" placeholder="Valor Total">
                     <label class="check-container"><input type="checkbox" id="f-is-parcelado" onchange="toggleParcelas()"><span style="font-weight:600; color:var(--text-sub);">Parcelado?</span></label>
                     <div class="parcela-box" id="box-parcelas"><input type="number" id="f-parcelas" value="1" min="1" placeholder="Nº de parcelas"></div>
@@ -327,47 +311,12 @@
             auth.signInWithEmailAndPassword(e, s).catch(err => alert("Erro: " + err.message));
         }
         function registrar() {
-    const nome = document.getElementById('cad-nome').value;
-    const email = document.getElementById('cad-user').value;
-    const nascimento = document.getElementById('cad-nascimento').value;
-    const tel = document.getElementById('cad-tel').value;
-    const senha = document.getElementById('cad-pass').value;
-    const confirma = document.getElementById('cad-confirm-pass').value;
-
-    if (senha !== confirma) {
-        alert("As senhas não coincidem!");
-        return;
-    }
-
-    if (!nome || !email || !nascimento) {
-        alert("Preencha todos os campos obrigatórios!");
-        return;
-    }
-
-    auth.createUserWithEmailAndPassword(email, senha).then(res => {
-        // Pegar primeiro e segundo nome para o sistema
-        const partesNome = nome.trim().split(" ");
-        const usuarioRef = partesNome.length > 1 ? `${partesNome[0]} ${partesNome[1]}` : partesNome[0];
-
-        // Salva os dados estendidos no banco
-        db.ref(`usuarios/${res.user.uid}/perfil`).set({
-            nome: nome,
-            usuarioNick: usuarioRef,
-            email: email,
-            nascimento: nascimento,
-            celular: tel,
-            metodo: 'email'
-        });
-
-        // Inicializa o restante do sistema para o novo user
-        db.ref(`usuarios/${res.user.uid}`).update({
-            saldoMensal: 0,
-            cartoes: ["Nubank"]
-        });
-
-        alert("Cadastro realizado com sucesso!");
-    }).catch(err => alert(err.message));
-}
+            const e = document.getElementById('cad-user').value;
+            const s = document.getElementById('cad-pass').value;
+            auth.createUserWithEmailAndPassword(e, s).then(res => {
+                db.ref(`usuarios/${res.user.uid}`).set({ saldoMensal: 0, cartoes: ["Nubank"] });
+            }).catch(err => alert(err.message));
+        }
         function fazerLogout() { auth.signOut(); }
 
         // NOVA FUNÇÃO RECUPERAR SENHA COM TRATAMENTO DE ERROS
@@ -458,9 +407,22 @@
         }
 
         function togglePagarFixa(i) {
-            let list = dados.fixas || [];
+            let list = [...(dados.fixas || [])];
+            let saldoAtual = dados.saldoMensal || 0;
+            const valorConta = list[i].valor;
+
+            if (!list[i].paga) {
+                saldoAtual -= valorConta; // Deduz do saldo se marcar como paga
+            } else {
+                saldoAtual += valorConta; // Devolve ao saldo se desmarcar
+            }
+
             list[i].paga = !list[i].paga;
-            db.ref(`usuarios/${userUID}/fixas`).set(list);
+            
+            db.ref(`usuarios/${userUID}`).update({
+                fixas: list,
+                saldoMensal: saldoAtual
+            });
         }
 
         function editGasto(i) {
@@ -546,115 +508,58 @@
         function zerarPoupanca() { if(confirm("Zerar?")) db.ref(`usuarios/${userUID}/poupanca_extrato`).set([]); }
 
         function renderTudo() {
-    const u = dados;
-    const userObj = auth.currentUser;
-    if (!userObj) return;
-
-    // --- 1. LÓGICA DE PERFIL (DADOS MANUAIS OU GOOGLE) ---
-    const p = u.perfil || {};
-    
-    // Define qual nome mostrar na saudação
-    const nomeSaudacao = p.usuarioNick || userObj.displayName || userObj.email.split('@')[0];
-    document.getElementById('msg-boas-vindas').innerHTML = `Olá, <b>${nomeSaudacao}</b>`;
-
-    // Preenche a aba de Perfil (se os IDs existirem no HTML)
-    const pNome = document.getElementById('p-nome');
-    if (pNome) {
-        pNome.innerText = p.nome || userObj.displayName || "Não informado";
-        document.getElementById('p-nick').innerText = p.usuarioNick || nomeSaudacao;
-        document.getElementById('p-email').innerText = p.email || userObj.email;
-
-        // Trata campos que podem não existir no login via Google
-        const elNasc = document.getElementById('p-extra-nasc');
-        const elTel = document.getElementById('p-extra-tel');
-
-        if (p.nascimento) {
-            document.getElementById('p-nasc').innerText = p.nascimento;
-            if (elNasc) elNasc.style.display = "block";
-        } else if (elNasc) {
-            elNasc.style.display = "none";
+            const u = dados;
+            const userObj = auth.currentUser;
+            if(!userObj) return;
+            document.getElementById('msg-boas-vindas').innerHTML = `Olá, <b>${userObj.displayName || userObj.email.split('@')[0]}</b>`;
+            const termoBusca = document.getElementById('input-busca').value.toLowerCase();
+            let totalG = 0, gPessoa = {}, gCartao = {};
+            const financasFiltradas = (u.financas || []).filter(g => g.local.toLowerCase().includes(termoBusca) || g.pessoa.toLowerCase().includes(termoBusca));
+            (u.financas || []).forEach(g => { totalG += g.valor; gPessoa[g.pessoa] = (gPessoa[g.pessoa] || 0) + g.valor; gCartao[g.cartao] = (gCartao[g.cartao] || 0) + g.valor; });
+            
+            let totalF_pendente = 0, alertasHtml = "";
+            (u.fixas || []).forEach((f, i) => {
+                // Apenas as não pagas somam para o cálculo da sobra
+                if (!f.paga) totalF_pendente += f.valor;
+                if (f.vencimento && !f.paga) {
+                    const diff = Math.ceil((new Date(f.vencimento + "T12:00:00") - new Date()) / (1000 * 60 * 60 * 24));
+                    if(diff <= 5) alertasHtml += `<li>${f.nome} (em ${diff} dias)</li>`;
+                }
+            });
+            const boxAlerta = document.getElementById('alertas-vencimento');
+            if (alertasHtml) { boxAlerta.style.display = "block"; document.getElementById('lista-alertas').innerHTML = alertasHtml; } else { boxAlerta.style.display = "none"; }
+            
+            document.getElementById('h-saldo-total').innerText = `R$ ${(u.saldoMensal || 0).toFixed(2)}`;
+            // Sobra agora considera que o saldoMensal já diminuiu ao pagar
+            const sobra = (u.saldoMensal || 0) - totalG - totalF_pendente;
+            
+            document.getElementById('h-sobra').innerText = `R$ ${sobra.toFixed(2)}`;
+            document.getElementById('h-sobra').style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
+            const bancos = u.cartoes || ['Nubank'];
+            document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
+            document.getElementById('cards-summary').innerHTML = bancos.map(b => `<div class="card-total-box"><h4>${b}</h4><p>R$ ${(gCartao[b] || 0).toFixed(2)}</p></div>`).join('');
+            document.getElementById('resumo-por-pessoa').innerHTML = Object.keys(gPessoa).map(p => `<div class="pessoa-tag">${p}: <b>R$ ${gPessoa[p].toFixed(2)}</b></div>`).join('');
+            let htmlG = "", dataAt = "";
+            financasFiltradas.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(g => {
+                const dt = new Date(g.data + "T12:00:00").toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+                if(dt !== dataAt) { htmlG += `<div class="data-separador">${dt}</div>`; dataAt = dt; }
+                const realIdx = u.financas.indexOf(g);
+                htmlG += `<div class="gasto-item"><span><b>${g.local}</b><br><small>${g.cartao} • ${g.pessoa}</small></span><div style="text-align:right"><b>R$ ${g.valor.toFixed(2)}</b><br><button class="btn-acao" style="color:var(--primary)" onclick="editGasto(${realIdx})">✎</button><button class="btn-acao" style="color:var(--danger)" onclick="delGasto(${realIdx})">✕</button></div></div>`;
+            });
+            document.getElementById('lista-financas').innerHTML = htmlG;
+            document.getElementById('lista-fixas').innerHTML = (u.fixas || []).map((f,i) => `
+                <div class="gasto-item" style="${f.paga ? 'opacity: 0.5;' : ''}">
+                    <input type="checkbox" ${f.paga ? 'checked' : ''} onchange="togglePagarFixa(${i})">
+                    <span>${f.nome}${f.recorrente ? ' <small style="color:var(--primary)">[R]</small>' : ''}<br><small>${f.vencimento}</small></span>
+                    <div style="text-align:right">
+                        <b>R$ ${f.valor.toFixed(2)}</b><br>
+                        <button class="btn-acao" style="color:var(--danger); font-size:12px" onclick="delFixa(${i})">✕</button>
+                    </div>
+                </div>`).join('');
+            let tP = 0;
+            document.getElementById('lista-poupanca').innerHTML = (u.poupanca_extrato || []).map(m => { tP += (m.tipo==='entrada'? m.valor : -m.valor); return `<div class="gasto-item"><span>${m.tipo==='entrada'?'📥':'📤'}</span><b>R$ ${m.valor.toFixed(2)}</b></div>`; }).reverse().join('');
+            document.getElementById('p-total').innerText = `R$ ${tP.toFixed(2)}`;
         }
-
-        if (p.celular) {
-            document.getElementById('p-tel').innerText = p.celular;
-            if (elTel) elTel.style.display = "block";
-        } else if (elTel) {
-            elTel.style.display = "none";
-        }
-    }
-
-    // --- 2. CÁLCULOS DE FINANÇAS ---
-    const termoBusca = document.getElementById('input-busca').value.toLowerCase();
-    let totalG = 0, gPessoa = {}, gCartao = {};
-    
-    const financasFiltradas = (u.financas || []).filter(g => 
-        g.local.toLowerCase().includes(termoBusca) || 
-        g.pessoa.toLowerCase().includes(termoBusca)
-    );
-
-    (u.financas || []).forEach(g => { 
-        totalG += g.valor; 
-        gPessoa[g.pessoa] = (gPessoa[g.pessoa] || 0) + g.valor; 
-        gCartao[g.cartao] = (gCartao[g.cartao] || 0) + g.valor; 
-    });
-
-    let totalF = 0, alertasHtml = "";
-    (u.fixas || []).forEach((f, i) => {
-        if (!f.paga) totalF += f.valor;
-        if (f.vencimento && !f.paga) {
-            const diff = Math.ceil((new Date(f.vencimento + "T12:00:00") - new Date()) / (1000 * 60 * 60 * 24));
-            if(diff <= 5) alertasHtml += `<li>${f.nome} (em ${diff} dias)</li>`;
-        }
-    });
-
-    // --- 3. ATUALIZAÇÃO DA INTERFACE (DASHBOARD) ---
-    const boxAlerta = document.getElementById('alertas-vencimento');
-    if (alertasHtml) { 
-        boxAlerta.style.display = "block"; 
-        document.getElementById('lista-alertas').innerHTML = alertasHtml; 
-    } else { 
-        boxAlerta.style.display = "none"; 
-    }
-
-    document.getElementById('h-saldo-total').innerText = `R$ ${(u.saldoMensal || 0).toFixed(2)}`;
-    const sobra = (u.saldoMensal || 0) - totalG - totalF;
-    const hSobra = document.getElementById('h-sobra');
-    hSobra.innerText = `R$ ${sobra.toFixed(2)}`;
-    hSobra.style.color = sobra < 0 ? 'var(--danger)' : 'var(--success)';
-
-    const bancos = u.cartoes || ['Nubank'];
-    document.getElementById('f-cartao-select').innerHTML = bancos.map(b => `<option value="${b}">${b}</option>`).join('');
-    document.getElementById('cards-summary').innerHTML = bancos.map(b => `<div class="card-total-box"><h4>${b}</h4><p>R$ ${(gCartao[b] || 0).toFixed(2)}</p></div>`).join('');
-    document.getElementById('resumo-por-pessoa').innerHTML = Object.keys(gPessoa).map(p => `<div class="pessoa-tag">${p}: <b>R$ ${gPessoa[p].toFixed(2)}</b></div>`).join('');
-
-    // --- 4. RENDERIZAÇÃO DE LISTAS (GASTOS E FIXAS) ---
-    let htmlG = "", dataAt = "";
-    financasFiltradas.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(g => {
-        const dt = new Date(g.data + "T12:00:00").toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
-        if(dt !== dataAt) { htmlG += `<div class="data-separador">${dt}</div>`; dataAt = dt; }
-        const realIdx = u.financas.indexOf(g);
-        htmlG += `<div class="gasto-item"><span><b>${g.local}</b><br><small>${g.cartao} • ${g.pessoa}</small></span><div style="text-align:right"><b>R$ ${g.valor.toFixed(2)}</b><br><button class="btn-acao" style="color:var(--primary)" onclick="editGasto(${realIdx})">✎</button><button class="btn-acao" style="color:var(--danger)" onclick="delGasto(${realIdx})">✕</button></div></div>`;
-    });
-    document.getElementById('lista-financas').innerHTML = htmlG;
-
-    document.getElementById('lista-fixas').innerHTML = (u.fixas || []).map((f,i) => `
-        <div class="gasto-item" style="${f.paga ? 'opacity: 0.5;' : ''}">
-            <input type="checkbox" ${f.paga ? 'checked' : ''} onchange="togglePagarFixa(${i})">
-            <span>${f.nome}${f.recorrente ? ' <small style="color:var(--primary)">[R]</small>' : ''}<br><small>${f.vencimento}</small></span>
-            <div style="text-align:right">
-                <b>R$ ${f.valor.toFixed(2)}</b><br>
-                <button class="btn-acao" style="color:var(--danger); font-size:12px" onclick="delFixa(${i})">✕</button>
-            </div>
-        </div>`).join('');
-
-    // --- 5. POUPANÇA ---
-    let tP = 0;
-    document.getElementById('lista-poupanca').innerHTML = (u.poupanca_extrato || []).map(m => { 
-        tP += (m.tipo==='entrada'? m.valor : -m.valor); 
-        return `<div class="gasto-item"><span>${m.tipo==='entrada'?'📥':'📤'}</span><b>R$ ${m.valor.toFixed(2)}</b></div>`; 
-    }).reverse().join('');
-    document.getElementById('p-total').innerText = `R$ ${tP.toFixed(2)}`;
-}
     </script>
 </body>
 </html>
